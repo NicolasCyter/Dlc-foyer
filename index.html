@@ -258,10 +258,13 @@ const devineLieu = nom => {
 };
 function extraireDate(txt){
   let m;
-  m = txt.match(new RegExp('\\b(\\d{1,2})\\s*(?:er)?\\s+(' + MOIS_RE + ')\\.?(?:\\s+(\\d{4}))?','i'));
+  m = txt.match(new RegExp('\\b(\\d{1,2})\\s*(?:er)?\\s+(' + MOIS_RE + ')\\.?(?:\\s+(\\d{2,4}))?','i'));
   if(m){ const mo = indexMois(m[2]);
-    if(mo >= 0){ const d = new Date(m[3] ? +m[3] : new Date().getFullYear(), mo, +m[1]);
-      return { date: m[3] ? d : prochaine(d), brut: m[0] }; } }
+    if(mo >= 0){
+      let an = null;
+      if(m[3]) an = m[3].length === 2 ? 2000 + +m[3] : +m[3];
+      const d = new Date(an === null ? new Date().getFullYear() : an, mo, +m[1]);
+      return { date: an === null ? prochaine(d) : d, brut: m[0] }; } }
   m = txt.match(/\b(\d{1,2})\s*[\/.\-]\s*(\d{1,2})(?:\s*[\/.\-]\s*(\d{2,4}))?\b/);
   if(m){ let an = new Date().getFullYear();
     if(m[3]) an = m[3].length === 2 ? 2000 + +m[3] : +m[3];
@@ -301,15 +304,28 @@ function nettoyer(nom){
   const t = mots.join(' ').trim();
   return t ? t.charAt(0).toUpperCase() + t.slice(1) : '';
 }
+const DATE_GLOBALE = [
+  '\\b\\d{1,2}\\s*(?:er)?\\s+(?:' + MOIS_RE + ')\\.?(?:\\s+\\d{2,4})?',
+  '\\b\\d{1,2}\\s*[\\/.\\-]\\s*\\d{1,2}(?:\\s*[\\/.\\-]\\s*\\d{2,4})?\\b',
+  'dans\\s+(?:\\d+|un|une|deux|trois|quatre|cinq|six)\\s*(?:jours?|semaines?|mois)',
+  'apr[\u00e8e]s[- ]demain|demain|aujourd[\u2019\']hui|ce soir',
+  '\\ble\\s+\\d{1,2}\\b'
+].join('|');
+
 function lire(texte){
+  const t = texte.replace(/\r/g,' ').replace(/\n/g,' , ').replace(/\s+/g,' ');
+  const re = new RegExp(DATE_GLOBALE, 'gi');
   const out = [];
-  texte.replace(/\r/g,'').split(/[\n,;•]|\s+(?:et|puis|ensuite)\s+/i).map(s => s.trim()).filter(Boolean)
-    .forEach(bout => {
-      const d = extraireDate(bout); if(!d) return;
-      const q = extraireQuantite(bout.replace(d.brut,' ').trim());
-      const nom = nettoyer(q.reste); if(!nom) return;
-      out.push({ nom, dlc: iso(d.date), lieu: devineLieu(nom), quantite: q.qte });
-    });
+  let debut = 0, m;
+  while((m = re.exec(t)) !== null){
+    const d = extraireDate(m[0]);
+    if(!d) continue;
+    const avant = t.slice(debut, m.index).replace(/^[\s,;.•]+|[\s,;.•]+$/g, '');
+    debut = m.index + m[0].length;
+    const q = extraireQuantite(avant);
+    const nom = nettoyer(q.reste);
+    if(nom) out.push({ nom, dlc: iso(d.date), lieu: devineLieu(nom), quantite: q.qte });
+  }
   return out;
 }
 
