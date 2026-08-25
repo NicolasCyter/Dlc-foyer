@@ -185,9 +185,9 @@
 
 <div class="barre cache" id="barre">
   <div class="barre-in">
-    <textarea id="saisie" rows="2" placeholder="Dictez au micro du clavier ou tapez : 3 fromages frais 12 septembre, escalopes de poulet le 27, crème fraîche dans 5 jours"></textarea>
-    <button class="valider" id="lireBtn">Lire les dates</button>
-    <div class="note" id="note">Micro du clavier ou saisie au doigt, au choix.</div>
+    <textarea id="saisie" rows="2" placeholder="Écrivez ou dictez ici, puis appuyez sur Analyser. Exemple : 3 fromages frais 12 septembre, escalopes de poulet le 27"></textarea>
+    <button class="valider" id="lireBtn">Analyser ma liste</button>
+    <div class="note" id="note">Écrivez d'abord dans le cadre, avec le clavier ou son micro.</div>
   </div>
 </div>
 
@@ -556,7 +556,7 @@ $('lireBtn').onclick = () => {
   $('saisie').blur();                       // referme le clavier, sinon il masque le panneau
   if(document.activeElement && document.activeElement.blur) document.activeElement.blur();
   const txt = $('saisie').value;
-  if(!txt.trim()){ $('note').textContent = 'Le champ est vide — dictez ou tapez un produit et sa date.'; return; }
+  if(!txt.trim()){ $('note').textContent = 'Le cadre est vide — écrivez ou dictez dedans avant d’analyser.'; return; }
   enAttente = lire(txt);
   let sansDate = false;
   if(!enAttente.length){
