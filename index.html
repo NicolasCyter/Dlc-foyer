@@ -133,9 +133,9 @@ h1 em{font-style:normal;color:var(--ambre)}
 .carte:last-child{border-bottom:none}
 .carte.perime{background:oklch(60% 0.185 28 / .045)}
 .tete{display:grid;grid-template-columns:3px 34px 1fr auto;align-items:center;gap:11px;
-  padding:12px 12px 12px 12px;cursor:pointer}
-.droite{display:flex;align-items:center;gap:6px}
-.chev{width:15px;height:15px;fill:none;stroke:var(--pale);stroke-width:2.2;
+  padding:12px 14px 12px 12px;cursor:pointer}
+.droite{display:flex;align-items:center;gap:8px;padding-left:4px}
+.chev{width:16px;height:16px;flex-shrink:0;fill:none;stroke:var(--pale);stroke-width:2.2;
   stroke-linecap:round;stroke-linejoin:round;
   transition:transform var(--moyen) var(--sortie)}
 .carte.ouvert .chev{transform:rotate(90deg)}
@@ -212,7 +212,9 @@ input[type=date],input[type=text],input[type=email],input[type=password],input[t
 input[type=date],input[type=number]{font-family:var(--mono);font-size:13.5px}
 input:focus{border-color:var(--ligne-2);background:var(--blanc)}
 
-.outils{display:flex;flex-wrap:wrap;gap:8px;margin:30px 0 12px}
+.version{text-align:center;font-family:var(--mono);font-size:10px;letter-spacing:.1em;
+  color:var(--pale);margin:26px 0 0;opacity:.7}
+.outils{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 12px}
 .outils .btn{flex:1;background:transparent;border:1px dashed var(--ligne-2)}
 
 .vide{margin-top:56px;text-align:center;color:var(--pale);font-size:15px;line-height:1.7}
@@ -252,14 +254,30 @@ textarea:focus{border-color:var(--miel)}
   align-items:center;justify-content:center;padding:14px;overflow-y:auto}
 .voile.on{display:flex;animation:apparait var(--court) ease-out}
 @keyframes apparait{from{opacity:0}}
-.panneau{background:var(--creme);border-radius:24px;width:100%;max-width:640px;
-  max-height:88vh;overflow-y:auto;padding:24px 18px;box-shadow:var(--ombre-h)}
+.panneau{background:var(--creme-2);border-radius:24px;width:100%;max-width:640px;
+  max-height:88vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:var(--ombre-h)}
+.panneau-haut{padding:22px 18px 2px;flex-shrink:0}
+.panneau-liste{flex:1 1 auto;min-height:0;overflow-y:auto;padding:0 18px 8px}
+.panneau-bas{flex-shrink:0;padding:12px 18px 18px;border-top:1px solid var(--ligne)}
 .panneau h3{margin:0 0 6px;font-size:21px;font-weight:700;letter-spacing:-.025em}
-.panneau p{margin:0 0 18px;color:var(--doux);font-size:13.5px;line-height:1.5}
-.relu{display:flex;gap:6px;align-items:center;margin-bottom:8px}
-.relu input[type=text]{flex:1;min-width:0}
-.relu input[type=number]{width:50px;text-align:center;padding:13px 4px}
-.relu .btn{padding:13px 12px;background:var(--blanc)}
+.panneau p{margin:0 0 14px;color:var(--doux);font-size:13.5px;line-height:1.5}
+.panneau .lien{padding:12px}
+.relu{background:var(--blanc);border-radius:16px;padding:13px 13px 14px;margin-bottom:10px;
+  box-shadow:0 1px 2px oklch(30% 0.042 62 / .06)}
+.relu-nom{width:100%;font-size:16px;font-weight:600;background:var(--creme);
+  border:1px solid var(--ligne);border-radius:12px;padding:12px 13px}
+.relu-nom:focus{background:var(--blanc);border-color:var(--miel)}
+.relu-bas{display:flex;gap:8px;align-items:flex-end;margin-top:10px}
+.champ{display:flex;flex-direction:column;gap:5px;min-width:0}
+.champ.grand{flex:1}
+.champ span{font-size:9.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--pale);padding-left:2px;white-space:nowrap}
+.champ input{background:var(--creme);border:1px solid var(--ligne);border-radius:12px;
+  padding:12px 10px;font-family:var(--mono);font-size:13.5px;width:100%}
+.champ input[type=number]{width:66px;text-align:center}
+.relu .retirer{width:48px;height:44px;padding:0;background:var(--creme);
+  border:1px solid var(--ligne);border-radius:12px;flex-shrink:0;align-self:flex-end}
+.relu .retirer svg.i{font-size:17px}
 .lien{background:none;border:none;color:var(--pale);font-size:12px;font-weight:600;
   letter-spacing:.05em;text-transform:uppercase;width:100%;padding:16px;cursor:pointer}
 
@@ -357,6 +375,8 @@ textarea:focus{border-color:var(--miel)}
 
   <div id="liste"></div>
 
+  <p class="version" id="version"></p>
+
   <div class="outils">
     <button class="btn" id="ranger"><svg class="i"><use href="#ic-boite"/></svg>Classer les produits sans emplacement</button>
     <button class="btn" id="purger"><svg class="i"><use href="#ic-balai"/></svg>Jeter les produits dépassés</button>
@@ -376,11 +396,15 @@ textarea:focus{border-color:var(--miel)}
 
 <div class="voile" id="voile">
   <div class="panneau">
-    <h3>Vérifiez avant d'ajouter</h3>
-    <p id="sousTitre"></p>
-    <div id="relecture"></div>
-    <button class="valider" id="confirmer">Ajouter au stock</button>
-    <button class="lien" id="annuler">Annuler</button>
+    <div class="panneau-haut">
+      <h3>Vérifiez avant d'ajouter</h3>
+      <p id="sousTitre"></p>
+    </div>
+    <div class="panneau-liste" id="relecture"></div>
+    <div class="panneau-bas">
+      <button class="valider" id="confirmer">Ajouter au stock</button>
+      <button class="lien" id="annuler">Annuler</button>
+    </div>
   </div>
 </div>
 
@@ -403,6 +427,7 @@ if(distant){
   sb = createClient(CONFIG.url, CONFIG.anonKey, { auth:{ persistSession:true, autoRefreshToken:true } });
 }
 
+const VERSION = 'v10 — 25 août 17h';
 const CACHE  = 'dlc-cache-v7';
 const ATTENTE = 'dlc-attente-v7';
 const FILTRE = 'dlc-filtre-v7';
@@ -750,7 +775,7 @@ async function recharger(){
 function ajouter(lots){
   const lignes = lots.map(o => ({
     id: crypto.randomUUID(), nom:o.nom, dlc:o.dlc, lieu:o.lieu || '',
-    quantite:o.quantite || 1, entame:false, congele_le:null, ...(foyer ? { foyer_id:foyer } : {})
+    quantite:o.quantite || 1, entame:false, congele_le:null, dlc_avant:null, ...(foyer ? { foyer_id:foyer } : {})
   }));
   items.push(...lignes); cacheEcrire(); rendre();
   empiler({ type:'insert', lignes });
@@ -813,10 +838,13 @@ function jeter(it){
 }
 /* Entamé : un produit ouvert ne tient plus que quelques jours. */
 function entamer(it){
-  const avant = { dlc: it.dlc, entame: !!it.entame };
+  const avant = { dlc: it.dlc, entame: !!it.entame, dlc_avant: it.dlc_avant || null };
   if(it.entame){                                  // deuxième appui : on retire la marque
-    modifier(it.id, { entame:false });
-    proposerAnnulation(it.nom + ' n\u2019est plus marqué entamé (la date reste inchangée)',
+    const rendue = it.dlc_avant && !it.congele_le;
+    modifier(it.id, rendue ? { entame:false, dlc: it.dlc_avant, dlc_avant:null } : { entame:false });
+    proposerAnnulation(
+      rendue ? it.nom + ' : date d\u2019origine rétablie'
+             : it.nom + ' n\u2019est plus marqué entamé',
       () => modifier(it.id, avant));
     return;
   }
@@ -830,7 +858,7 @@ function entamer(it){
   const d = jour0(); d.setDate(d.getDate() + info.jours);
   const neuve = iso(d);
   const retenue = neuve < it.dlc ? neuve : it.dlc;
-  modifier(it.id, { dlc: retenue, entame:true });
+  modifier(it.id, { dlc: retenue, entame:true, dlc_avant: it.dlc_avant || it.dlc });
   proposerAnnulation(
     retenue === neuve
       ? it.nom + ' : ' + info.jours + ' jour' + (info.jours>1?'s':'') + ' — ' + info.source
@@ -840,10 +868,13 @@ function entamer(it){
 
 /* Congelé : la DLC imprimée ne veut plus rien dire, on repart sur six mois. */
 function congeler(it){
-  const avant = { dlc: it.dlc, lieu: it.lieu || '', congele_le: it.congele_le || null };
+  const avant = { dlc: it.dlc, lieu: it.lieu || '', congele_le: it.congele_le || null, dlc_avant: it.dlc_avant || null };
   if(it.congele_le){                              // deuxième appui : on annule la congélation
-    modifier(it.id, { congele_le:null });
-    proposerAnnulation(it.nom + ' n\u2019est plus marqué congelé (la date reste inchangée)',
+    const rendue = !!it.dlc_avant;
+    modifier(it.id, rendue ? { congele_le:null, dlc: it.dlc_avant, dlc_avant:null } : { congele_le:null });
+    proposerAnnulation(
+      rendue ? it.nom + ' : date d\u2019origine rétablie'
+             : it.nom + ' n\u2019est plus marqué congelé',
       () => modifier(it.id, avant));
     return;
   }
@@ -852,7 +883,7 @@ function congeler(it){
     longuesOuvertes = true;
     try{ localStorage.setItem(LONGUES, '1'); }catch(e){}
   }
-  modifier(it.id, { dlc: iso(d), lieu: 'congélateur', congele_le: iso(jour0()) });
+  modifier(it.id, { dlc: iso(d), lieu: 'congélateur', congele_le: iso(jour0()), dlc_avant: it.dlc_avant || it.dlc });
   proposerAnnulation(it.nom + ' congelé — à consommer sous ' + MOIS_AU_CONGELATEUR + ' mois',
     () => modifier(it.id, avant));
 }
@@ -993,8 +1024,8 @@ function carte(it){
 
       <div class="etiq">Le faire sortir du stock</div>
       <div class="rang">
-        <button class="btn" data-a="ok"><svg class="i"><use href="#ic-moins"/></svg>J’en ai mangé un</button>
-        <button class="btn danger" data-a="ko"><svg class="i"><use href="#ic-poubelle"/></svg>Il n’y en a plus</button>
+        ${q > 1 ? '<button class="btn" data-a="ok"><svg class="i"><use href="#ic-moins"/></svg>J’en ai mangé un</button>' : ''}
+        <button class="btn danger" data-a="ko"><svg class="i"><use href="#ic-poubelle"/></svg>${q > 1 ? 'Il n’y en a plus' : 'Je l’ai consommé ou jeté'}</button>
       </div>
     </div></div></div>`;
 
@@ -1021,7 +1052,7 @@ function carte(it){
     sous.appendChild(e);
   };
   bout(d + '.' + m);
-  if(it.lieu) bout(it.lieu.charAt(0).toUpperCase() + it.lieu.slice(1));
+  if(it.lieu) bout(it.lieu === 'congélateur' ? 'Congélo' : it.lieu.charAt(0).toUpperCase() + it.lieu.slice(1));
   if(it.entame){
     const src = joursOuvert(it.nom);
     bout('Entamé', 'ouvert');
@@ -1047,7 +1078,7 @@ function carte(it){
   };
   el.querySelector('input[type=number]').onchange = e =>
     modifier(it.id, { quantite: Math.min(99, Math.max(1, parseInt(e.target.value, 10) || 1)) });
-  el.querySelector('input[type=date]').onchange = e => { if(e.target.value) modifier(it.id, { dlc: e.target.value }); };
+  el.querySelector('input[type=date]').onchange = e => { if(e.target.value) modifier(it.id, { dlc: e.target.value, dlc_avant: null }); };
   el.querySelectorAll('.lieux .btn').forEach(b => {
     if(b.dataset.l === it.lieu) b.classList.add('choisi');
     b.onclick = () => modifier(it.id, { lieu: it.lieu === b.dataset.l ? '' : b.dataset.l });
@@ -1068,7 +1099,8 @@ function carte(it){
   if(it.congele_le) bGel.classList.add('choisi');
   bEnt.onclick = () => entamer(it);
   bGel.onclick = () => congeler(it);
-  el.querySelector('[data-a="ok"]').onclick     = () => consommer(it);
+  const bok = el.querySelector('[data-a="ok"]');
+  if(bok) bok.onclick = () => consommer(it);
   el.querySelector('[data-a="ko"]').onclick     = () => jeter(it);
   return el;
 }
@@ -1198,6 +1230,7 @@ async function ouvrirSession(){
 }
 async function demarrer(){
   majEntete();
+  $('version').textContent = VERSION;
   items = lireJSON(CACHE);
   attente = lireJSON(ATTENTE);
   try{ filtre = localStorage.getItem(FILTRE) || 'tous'; longuesOuvertes = localStorage.getItem(LONGUES) === '1'; }catch(e){}
