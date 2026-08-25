@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dates — DLC du foyer</title>
+<meta name="theme-color" content="#10201D">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Dates">
+<meta name="referrer" content="no-referrer">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icone.png">
+<style>
+  :root{
+    --nuit:#10201D; --nuit-2:#172C28; --nuit-3:#1E3733;
+    --givre:#DCE7E2; --sourd:#7E9A92;
+    --etiquette:#F0C24B; --alerte:#D9543B; --frais:#6FBF9B;
+    --trait:rgba(220,231,226,.13);
+    --mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;background:var(--nuit);color:var(--givre);
+    font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:16px;line-height:1.4;
+    padding-bottom:210px;min-height:100vh}
+  .wrap{max-width:640px;margin:0 auto;padding:18px 16px 0}
+  .cache{display:none!important}
+
+  header{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:16px;border-bottom:1px solid var(--trait)}
+  .eyebrow{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--sourd)}
+  h1{font-size:24px;font-weight:700;margin:5px 0 0;letter-spacing:-.02em}
+  .today{font-family:var(--mono);font-size:11px;color:var(--sourd);text-align:right;line-height:1.6}
+  .today b{display:block;color:var(--givre);font-size:15px}
+
+  .fil{display:flex;align-items:center;gap:7px;margin-top:12px;font-family:var(--mono);
+    font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--sourd)}
+  .pastille{width:7px;height:7px;border-radius:50%;background:var(--sourd);flex-shrink:0}
+  .fil.vivant .pastille{background:var(--frais)}
+  .fil.coupe .pastille{background:var(--alerte)}
+  .fil.attente .pastille{background:var(--etiquette)}
+  .fil button{margin-left:auto;background:none;border:none;color:var(--sourd);
+    font-family:inherit;font-size:inherit;letter-spacing:inherit;text-transform:inherit;cursor:pointer;text-decoration:underline}
+
+  .filtres{display:flex;gap:7px;margin-top:14px}
+  .puce{flex:1;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+    background:none;border:1px solid var(--trait);color:var(--sourd);padding:10px 6px;border-radius:99px;cursor:pointer}
+  .puce.actif{background:var(--givre);border-color:var(--givre);color:var(--nuit);font-weight:700}
+
+  .resume{margin:14px 0 0;font-size:15px;color:var(--sourd)}
+  .resume strong{color:var(--etiquette);font-weight:700}
+  .resume.calme strong{color:var(--frais)}
+
+  .groupe{margin-top:24px}
+  .groupe h2{position:sticky;top:0;background:var(--nuit);z-index:2;
+    font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--sourd);font-weight:400;margin:0 0 8px;padding:6px 0;display:flex;align-items:center;gap:10px}
+  .groupe h2 span{color:var(--givre)}
+  .groupe h2::after{content:"";flex:1;height:1px;background:var(--trait)}
+
+  .carte{background:var(--nuit-2);border:1px solid var(--trait);border-left:3px solid var(--sourd);
+    border-radius:4px;margin-bottom:8px;overflow:hidden}
+  .carte.perime{border-left-color:var(--alerte)}
+  .carte.urgent{border-left-color:var(--etiquette)}
+  .carte.semaine{border-left-color:var(--frais)}
+  .tete{display:flex;align-items:center;gap:12px;padding:13px 14px;cursor:pointer}
+  .nom{flex:1;font-weight:600;font-size:16px;overflow-wrap:anywhere}
+  .qte{display:inline-block;margin-left:8px;font-family:var(--mono);font-size:11px;font-weight:700;
+    color:var(--nuit);background:var(--sourd);border-radius:99px;padding:2px 8px;vertical-align:1px}
+  .sous{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--sourd);font-weight:400;margin-top:4px}
+  .sous em{font-style:normal;color:var(--etiquette)}
+  .tampon{font-family:var(--mono);font-weight:700;font-size:13px;
+    border:1.5px solid currentColor;border-radius:2px;padding:5px 8px 4px;text-align:center;
+    transform:rotate(-1.4deg);min-width:76px;flex-shrink:0;color:var(--sourd)}
+  .tampon small{display:block;font-weight:400;font-size:9.5px;letter-spacing:.08em;opacity:.75;margin-top:1px}
+  .perime .tampon{color:var(--alerte)} .urgent .tampon{color:var(--etiquette)} .semaine .tampon{color:var(--frais)}
+
+  .actions{display:none;flex-direction:column;gap:8px;padding:0 14px 14px}
+  .carte.ouvert .actions{display:flex}
+  .rang{display:flex;gap:8px}
+  .rang input[type=text]{flex:1;min-width:0}
+  .rang input[type=number]{width:72px;text-align:center}
+  .rang input[type=date]{flex:1}
+  .rang .btn{flex:1}
+  .etiq{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--sourd);margin-bottom:-3px}
+
+  .btn{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+    background:var(--nuit-3);border:1px solid var(--trait);color:var(--givre);padding:11px 12px;border-radius:3px;cursor:pointer}
+  .btn.danger{color:var(--alerte)}
+  .btn.jaune{color:var(--etiquette)}
+  input[type=date],input[type=text],input[type=email],input[type=password],input[type=number]{
+    background:var(--nuit-3);border:1px solid var(--trait);color:var(--givre);
+    padding:11px;border-radius:3px;font-family:var(--mono);font-size:13px}
+  input[type=text]{font-family:system-ui,-apple-system,sans-serif;font-size:15px}
+
+  .outils{display:flex;gap:8px;margin:26px 0 8px}
+  .outils .btn{flex:1}
+  .vide{margin-top:56px;text-align:center;color:var(--sourd);font-size:15px;line-height:1.7}
+  .vide code{font-family:var(--mono);color:var(--givre);font-size:13px;display:block;margin-top:12px}
+
+  .barre{position:fixed;left:0;right:0;bottom:0;z-index:5;
+    background:linear-gradient(180deg,rgba(16,32,29,0) 0%,var(--nuit) 20%);
+    padding:30px 16px calc(16px + env(safe-area-inset-bottom))}
+  .barre-in{max-width:640px;margin:0 auto}
+  textarea{width:100%;background:var(--nuit-2);border:1px solid var(--trait);color:var(--givre);
+    border-radius:4px;padding:14px;font-family:system-ui,-apple-system,sans-serif;font-size:16px;
+    line-height:1.5;resize:none;min-height:76px}
+  textarea::placeholder{color:var(--sourd)}
+  .valider{width:100%;margin-top:9px;border:none;border-radius:4px;padding:17px;cursor:pointer;
+    background:var(--givre);color:var(--nuit);font-family:inherit;font-weight:700;font-size:16px}
+  .note{font-family:var(--mono);font-size:10.5px;color:var(--sourd);text-align:center;
+    margin-top:9px;letter-spacing:.03em;line-height:1.6}
+
+  .toast{position:fixed;left:16px;right:16px;bottom:212px;z-index:8;display:none;
+    max-width:608px;margin:0 auto;background:var(--nuit-3);border:1px solid var(--trait);
+    border-radius:4px;padding:12px 14px;align-items:center;gap:12px;
+    box-shadow:0 6px 24px rgba(0,0,0,.45)}
+  .toast.on{display:flex}
+  .toast span{flex:1;font-size:14px;overflow-wrap:anywhere}
+  .toast button{background:none;border:none;color:var(--etiquette);font-family:var(--mono);
+    font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;cursor:pointer;padding:6px}
+
+  .voile{position:fixed;inset:0;background:rgba(8,16,14,.88);z-index:10;display:none;align-items:flex-end;justify-content:center}
+  .voile.on{display:flex}
+  .panneau{background:var(--nuit);border-top:2px solid var(--etiquette);border-radius:10px 10px 0 0;
+    width:100%;max-width:640px;max-height:86vh;overflow-y:auto;padding:20px 16px calc(20px + env(safe-area-inset-bottom))}
+  .panneau h3{margin:0 0 4px;font-size:19px}
+  .panneau p{margin:0 0 16px;color:var(--sourd);font-size:13.5px}
+  .relu{display:flex;gap:7px;align-items:center;margin-bottom:8px}
+  .relu input[type=text]{flex:1;min-width:0}
+  .relu input[type=number]{width:56px;text-align:center}
+  .lien{background:none;border:none;color:var(--sourd);font-family:var(--mono);
+    font-size:11px;letter-spacing:.08em;text-transform:uppercase;width:100%;padding:14px;cursor:pointer}
+
+  .porte{position:fixed;inset:0;background:var(--nuit);z-index:20;display:flex;align-items:center;justify-content:center;padding:24px}
+  .porte-in{width:100%;max-width:360px}
+  .porte .eyebrow{margin-bottom:8px}
+  .porte h2{font-size:26px;margin:0 0 6px;letter-spacing:-.02em}
+  .porte p{color:var(--sourd);font-size:14px;margin:0 0 22px;line-height:1.6}
+  .porte input{width:100%;margin-bottom:9px;font-size:16px}
+  .erreur{color:var(--alerte);font-size:13px;min-height:20px;margin-top:10px;text-align:center}
+  :focus-visible{outline:2px solid var(--etiquette);outline-offset:2px}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="porte cache" id="porte">
+  <div class="porte-in">
+    <div class="eyebrow">Stock du foyer</div>
+    <h2>Connexion</h2>
+    <p>Deux comptes, créés par vous. Personne d'autre n'a accès à la liste.</p>
+    <input type="email" id="email" placeholder="Adresse e-mail" autocomplete="username" inputmode="email">
+    <input type="password" id="mdp" placeholder="Mot de passe" autocomplete="current-password">
+    <button class="valider" id="entrer">Entrer</button>
+    <div class="erreur" id="erreur"></div>
+  </div>
+</div>
+
+<div class="wrap cache" id="app">
+  <header>
+    <div>
+      <div class="eyebrow">Réception des courses</div>
+      <h1>Ce qui part en premier</h1>
+    </div>
+    <div class="today"><b id="jour">—</b><span id="mois">—</span></div>
+  </header>
+  <div class="fil" id="fil"><span class="pastille"></span><span id="filTexte">Connexion…</span><button id="sortir">Se déconnecter</button></div>
+  <div class="filtres" id="filtres">
+    <button class="puce actif" data-lieu="tous">Tous</button>
+    <button class="puce" data-lieu="frigo">Frigo</button>
+    <button class="puce" data-lieu="congélateur">Congélateur</button>
+  </div>
+  <div class="resume" id="resume"></div>
+  <div id="liste"></div>
+  <div class="outils" id="outils">
+    <button class="btn" id="purger">Retirer les dépassés</button>
+    <button class="btn danger" id="vider">Vider le stock</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span id="toastTexte"></span><button id="toastBtn">Annuler</button></div>
+
+<div class="barre cache" id="barre">
+  <div class="barre-in">
+    <textarea id="saisie" rows="2" placeholder="Dictez au micro du clavier ou tapez : 3 fromages frais 12 septembre, escalopes de poulet le 27, crème fraîche dans 5 jours"></textarea>
+    <button class="valider" id="lireBtn">Lire les dates</button>
+    <div class="note" id="note">Micro du clavier ou saisie au doigt, au choix.</div>
+  </div>
+</div>
+
+<div class="voile" id="voile">
+  <div class="panneau">
+    <h3>Vérifiez avant d'ajouter</h3>
+    <p id="sousTitre"></p>
+    <div id="relecture"></div>
+    <button class="valider" id="confirmer">Ajouter au stock</button>
+    <button class="lien" id="annuler">Annuler</button>
+  </div>
+</div>
+
+<script type="module">
+/* ══════════════════════════════════════════════════════════
+   CONFIGURATION — à remplir après création du projet Supabase.
+   Ces deux valeurs sont publiques par conception : ce qui protège
+   les données, c'est la politique RLS côté serveur.
+   Ne jamais mettre ici une clé sb_secret_ / service_role.
+   ══════════════════════════════════════════════════════════ */
+const CONFIG = {
+  url:     'https://ecrbavcjxbvmlfhypjvx.supabase.co',
+  anonKey: 'sb_publishable_bYugZJWBfMQxOkZGz54f5w_-Unwjrtb'
+};
+
+const distant = !!(CONFIG.url && CONFIG.anonKey);
+let sb = null;
+if(distant){
+  const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
+  sb = createClient(CONFIG.url, CONFIG.anonKey, { auth:{ persistSession:true, autoRefreshToken:true } });
+}
+
+const CACHE  = 'dlc-cache-v5';
+const ATTENTE = 'dlc-attente-v5';
+const FILTRE = 'dlc-filtre-v5';
+const JOURS_APRES_OUVERTURE = 3;
+
+let items = [], enAttente = [], attente = [], foyer = null, canal = null;
+let filtre = 'tous', annulation = null, minuteur = null;
+const $ = id => document.getElementById(id);
+
+/* ══════ dates ══════ */
+const MOIS = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+const MOIS_RE = 'janv(?:ier)?|f[ée]vr?(?:ier)?|mars|avr(?:il)?|mai|juin|juil(?:let)?|ao[uû]t|sept(?:embre)?|oct(?:obre)?|nov(?:embre)?|d[ée]c(?:embre)?';
+function indexMois(s){
+  s = s.toLowerCase();
+  const t = [['janv','jan'],['fev','fév','f'],['mars'],['avr'],['mai'],['juin'],['juil'],['aou','aoû'],['sept'],['oct'],['nov'],['dec','déc']];
+  for(let i=0;i<12;i++) if(t[i].some(p => s.startsWith(p))) return i;
+  return -1;
+}
+const jour0 = () => { const d = new Date(); d.setHours(0,0,0,0); return d; };
+const iso = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const restant = s => Math.round((new Date(s+'T00:00:00') - jour0()) / 86400000);
+const prochaine = d => { if(d < jour0()) d.setFullYear(d.getFullYear()+1); return d; };
+
+/* ══════ lecture de la dictée ══════ */
+const VIDES = /^(le|la|les|l['’]|du|de|des|un|une|d['’]|au|aux|et|puis|alors|ensuite|pour|c['’]est|ca|ça|expire|expires?|p[ée]rim[ée]s?|jusqu['’]au|jusqu['’]a|jusqu['’]à|date|dlc)$/i;
+const NOMBRES = { un:1, une:1, deux:2, trois:3, quatre:4, cinq:5, six:6, sept:7, huit:8, neuf:9, dix:10, onze:11, douze:12 };
+const LIEUX = {
+  'congélateur':['surgel','congel','glace','glaçon','pané','frites'],
+  'frigo':['yaourt','lait','crème','creme','fromage','jambon','beurre','poulet','viande','steak','saucisse','poisson','saumon','œuf','oeuf','salade','charcuterie','escalope','skyr','fraîche','fraiche','dessert'],
+  'placard':['pâtes','pates','riz','conserve','farine','sucre','biscuit','céréales','cereales','huile','café','cafe','chips','gâteau','gateau']
+};
+const devineLieu = nom => {
+  const n = nom.toLowerCase();
+  for(const [l, mots] of Object.entries(LIEUX)) if(mots.some(m => n.includes(m))) return l;
+  return '';
+};
+function extraireDate(txt){
+  let m;
+  m = txt.match(new RegExp('\\b(\\d{1,2})\\s*(?:er)?\\s+(' + MOIS_RE + ')\\.?(?:\\s+(\\d{4}))?','i'));
+  if(m){ const mo = indexMois(m[2]);
+    if(mo >= 0){ const d = new Date(m[3] ? +m[3] : new Date().getFullYear(), mo, +m[1]);
+      return { date: m[3] ? d : prochaine(d), brut: m[0] }; } }
+  m = txt.match(/\b(\d{1,2})\s*[\/.\-]\s*(\d{1,2})(?:\s*[\/.\-]\s*(\d{2,4}))?\b/);
+  if(m){ let an = new Date().getFullYear();
+    if(m[3]) an = m[3].length === 2 ? 2000 + +m[3] : +m[3];
+    const d = new Date(an, +m[2]-1, +m[1]);
+    return { date: m[3] ? d : prochaine(d), brut: m[0] }; }
+  m = txt.match(/dans\s+(\d+|un|une|deux|trois|quatre|cinq|six)\s*(jours?|semaines?|mois)/i);
+  if(m){ const n = NOMBRES[m[1].toLowerCase()] || +m[1];
+    const d = jour0();
+    if(/jour/i.test(m[2])) d.setDate(d.getDate()+n);
+    else if(/semaine/i.test(m[2])) d.setDate(d.getDate()+n*7);
+    else d.setMonth(d.getMonth()+n);
+    return { date: d, brut: m[0] }; }
+  m = txt.match(/apr[èe]s[- ]demain|demain|aujourd['’]hui|ce soir/i);
+  if(m){ const d = jour0();
+    if(/apr[èe]s/i.test(m[0])) d.setDate(d.getDate()+2);
+    else if(/demain/i.test(m[0])) d.setDate(d.getDate()+1);
+    return { date: d, brut: m[0] }; }
+  m = txt.match(/\ble\s+(\d{1,2})\b|\b(\d{1,2})\s*$/);
+  if(m){ const n = +(m[1] || m[2]);
+    if(n >= 1 && n <= 31){ const a = jour0();
+      let d = new Date(a.getFullYear(), a.getMonth(), n);
+      if(d < a) d = new Date(a.getFullYear(), a.getMonth()+1, n);
+      return { date: d, brut: m[0] }; } }
+  return null;
+}
+function extraireQuantite(txt){
+  const m = txt.match(/^\s*(\d{1,2}|un|une|deux|trois|quatre|cinq|six|sept|huit|neuf|dix|onze|douze)\s+(?=\S)/i);
+  if(!m) return { qte:1, reste:txt };
+  const v = /^\d+$/.test(m[1]) ? +m[1] : NOMBRES[m[1].toLowerCase()];
+  if(!v || v < 1 || v > 99) return { qte:1, reste:txt };
+  return { qte:v, reste: txt.slice(m[0].length) };
+}
+function nettoyer(nom){
+  const mots = nom.replace(/[.;:!?]+/g,' ').split(/\s+/).filter(Boolean);
+  while(mots.length && VIDES.test(mots[0])) mots.shift();
+  while(mots.length && VIDES.test(mots[mots.length-1])) mots.pop();
+  const t = mots.join(' ').trim();
+  return t ? t.charAt(0).toUpperCase() + t.slice(1) : '';
+}
+function lire(texte){
+  const out = [];
+  texte.replace(/\r/g,'').split(/[\n,;•]|\s+(?:et|puis|ensuite)\s+/i).map(s => s.trim()).filter(Boolean)
+    .forEach(bout => {
+      const d = extraireDate(bout); if(!d) return;
+      const q = extraireQuantite(bout.replace(d.brut,' ').trim());
+      const nom = nettoyer(q.reste); if(!nom) return;
+      out.push({ nom, dlc: iso(d.date), lieu: devineLieu(nom), quantite: q.qte });
+    });
+  return out;
+}
+
+/* ══════ cache local et file d'attente ══════ */
+const lireJSON = c => { try{ return JSON.parse(localStorage.getItem(c)) || []; }catch(e){ return []; } };
+const ecrireJSON = (c, v) => { try{ localStorage.setItem(c, JSON.stringify(v)); }catch(e){} };
+const cacheEcrire  = () => ecrireJSON(CACHE, items);
+const attenteEcrire = () => ecrireJSON(ATTENTE, attente);
+
+function fil(etat, texte){ $('fil').className = 'fil ' + etat; $('filTexte').textContent = texte; }
+function majFil(){
+  if(!distant){ fil('', 'Mode local — Supabase non configuré'); return; }
+  if(attente.length){ fil('attente', attente.length + ' modification' + (attente.length>1?'s':'') + ' en attente'); return; }
+  navigator.onLine ? fil('vivant','Synchronisé avec le foyer') : fil('coupe','Hors ligne — liste en cache');
+}
+
+/* Une opération part maintenant si le réseau répond, sinon elle attend son tour. */
+function empiler(op){
+  if(!distant) return;
+  attente.push(op); attenteEcrire(); majFil(); vider();
+}
+async function envoyer(op){
+  if(op.type === 'insert') return sb.from('produits').insert(op.lignes);
+  if(op.type === 'update') return sb.from('produits').update(op.champs).eq('id', op.id);
+  if(op.type === 'delete') return sb.from('produits').delete().eq('id', op.id);
+  if(op.type === 'deleteMany') return sb.from('produits').delete().in('id', op.ids);
+}
+let vidageEnCours = false;
+async function vider(){
+  if(!distant || vidageEnCours || !attente.length || !foyer) return;
+  vidageEnCours = true;
+  while(attente.length){
+    const op = attente[0];
+    let res;
+    try{ res = await envoyer(op); }
+    catch(e){ break; }                                  // réseau coupé : on garde l'opération
+    if(res && res.error){
+      const reseau = !navigator.onLine || /fetch|network|timeout/i.test(res.error.message || '');
+      if(reseau) break;
+      attente.shift(); attenteEcrire();                 // refusée par la base : inutile de réessayer
+      $('note').textContent = 'Une modification a été refusée : ' + res.error.message;
+      continue;
+    }
+    attente.shift(); attenteEcrire();
+  }
+  vidageEnCours = false;
+  majFil();
+  if(!attente.length) await recharger();
+}
+
+async function recharger(){
+  if(!distant){ items = lireJSON(CACHE); rendre(); return; }
+  if(attente.length){ rendre(); return; }               // ne pas écraser des changements non envoyés
+  const { data, error } = await sb.from('produits').select('*').order('dlc', { ascending:true });
+  if(error){ fil('coupe','Hors ligne — liste en cache'); items = lireJSON(CACHE); rendre(); return; }
+  items = data; cacheEcrire(); majFil(); rendre();
+}
+
+/* Toutes les écritures s'appliquent d'abord à l'écran, puis partent vers la base. */
+function ajouter(lots){
+  const lignes = lots.map(o => ({
+    id: crypto.randomUUID(), nom:o.nom, dlc:o.dlc, lieu:o.lieu || '',
+    quantite:o.quantite || 1, entame:false, ...(foyer ? { foyer_id:foyer } : {})
+  }));
+  items.push(...lignes); cacheEcrire(); rendre();
+  empiler({ type:'insert', lignes });
+  return lignes.length;
+}
+function modifier(id, champs){
+  const i = items.find(x => x.id === id);
+  if(i) Object.assign(i, champs);
+  cacheEcrire(); rendre();
+  empiler({ type:'update', id, champs });
+}
+function retirer(id){
+  items = items.filter(i => i.id !== id);
+  cacheEcrire(); rendre();
+  empiler({ type:'delete', id });
+}
+function retirerPlusieurs(lignes, texte){
+  if(!lignes.length){ $('note').textContent = 'Rien à retirer.'; return; }
+  const copie = lignes.map(l => ({ ...l }));
+  const ids = copie.map(l => l.id);
+  items = items.filter(i => !ids.includes(i.id));
+  cacheEcrire(); rendre();
+  empiler({ type:'deleteMany', ids });
+  proposerAnnulation(texte, () => {
+    items.push(...copie); cacheEcrire(); rendre();
+    empiler({ type:'insert', lignes:copie });
+  });
+}
+function restaurer(ligne){
+  items.push(ligne); cacheEcrire(); rendre();
+  empiler({ type:'insert', lignes:[ligne] });
+}
+
+/* ══════ annulation ══════ */
+function proposerAnnulation(texte, action){
+  clearTimeout(minuteur);
+  annulation = action;
+  $('toastTexte').textContent = texte;
+  $('toast').classList.add('on');
+  minuteur = setTimeout(fermerToast, 10000);
+}
+function fermerToast(){ $('toast').classList.remove('on'); annulation = null; }
+$('toastBtn').onclick = () => { if(annulation) annulation(); fermerToast(); };
+
+function consommer(it){
+  const avant = { ...it };
+  const q = (it.quantite || 1) - 1;
+  if(q > 0){
+    modifier(it.id, { quantite:q });
+    proposerAnnulation(`${it.nom} — 1 de moins`, () => modifier(avant.id, { quantite: avant.quantite || 1 }));
+  }else{
+    retirer(it.id);
+    proposerAnnulation(`${it.nom} retiré`, () => restaurer(avant));
+  }
+}
+function jeter(it){
+  const avant = { ...it };
+  retirer(it.id);
+  proposerAnnulation(`${it.nom} retiré du stock`, () => restaurer(avant));
+}
+/* Entamé : un produit ouvert ne tient plus que quelques jours. */
+function entamer(it){
+  const avant = { dlc: it.dlc, entame: !!it.entame };
+  const d = jour0(); d.setDate(d.getDate() + JOURS_APRES_OUVERTURE);
+  const neuve = iso(d);
+  modifier(it.id, { dlc: neuve < it.dlc ? neuve : it.dlc, entame:true });
+  proposerAnnulation(`${it.nom} marqué entamé`, () => modifier(it.id, avant));
+}
+
+/* ══════ affichage ══════ */
+function majEntete(){
+  const d = new Date();
+  $('jour').textContent = String(d.getDate()).padStart(2,'0') + '.' + String(d.getMonth()+1).padStart(2,'0');
+  $('mois').textContent = MOIS[d.getMonth()];
+}
+const etatJ = j => j < 0 ? 'perime' : j <= 2 ? 'urgent' : j <= 7 ? 'semaine' : '';
+const libelle = j => j < 0 ? (j === -1 ? 'hier' : 'J+' + (-j)) : j === 0 ? "aujourd'hui" : j === 1 ? 'demain' : 'J-' + j;
+
+$('filtres').onclick = e => {
+  const b = e.target.closest('.puce'); if(!b) return;
+  filtre = b.dataset.lieu;
+  try{ localStorage.setItem(FILTRE, filtre); }catch(err){}
+  document.querySelectorAll('.puce').forEach(p => p.classList.toggle('actif', p.dataset.lieu === filtre));
+  rendre();
+};
+
+function rendre(){
+  const liste = $('liste'), resume = $('resume');
+  liste.innerHTML = '';
+  items.sort((a,b) => a.dlc.localeCompare(b.dlc) || a.nom.localeCompare(b.nom));
+  const vus = filtre === 'tous' ? items : items.filter(i => i.lieu === filtre);
+
+  if(!vus.length){
+    resume.textContent = '';
+    liste.innerHTML = filtre === 'tous'
+      ? `<div class="vide">Aucun produit en stock.<br>Déballez les courses et dictez au fur et à mesure.
+         <code>« 3 fromages frais 12 septembre »</code></div>`
+      : `<div class="vide">Rien dans « ${filtre} » pour le moment.</div>`;
+    return;
+  }
+  const presses = vus.filter(i => restant(i.dlc) <= 2).reduce((n,i) => n + (i.quantite || 1), 0);
+  const total   = vus.reduce((n,i) => n + (i.quantite || 1), 0);
+  resume.className = presses ? 'resume' : 'resume calme';
+  resume.innerHTML = presses
+    ? `<strong>${presses}</strong> à manger sous 48 h · ${total} article${total>1?'s':''} en stock`
+    : `<strong>Rien d'urgent.</strong> ${total} article${total>1?'s':''} en stock`;
+
+  [['Dépassé', j => j < 0], ['Sous 48 heures', j => j >= 0 && j <= 2],
+   ['Cette semaine', j => j > 2 && j <= 7], ['Plus tard', j => j > 7]].forEach(([titre, test]) => {
+    const lot = vus.filter(i => test(restant(i.dlc)));
+    if(!lot.length) return;
+    const bloc = document.createElement('div');
+    bloc.className = 'groupe';
+    bloc.innerHTML = `<h2>${titre} <span>${lot.length}</span></h2>`;
+    lot.forEach(it => bloc.appendChild(carte(it)));
+    liste.appendChild(bloc);
+  });
+}
+
+function carte(it){
+  const j = restant(it.dlc), [, m, d] = it.dlc.split('-');
+  const q = it.quantite || 1;
+  const el = document.createElement('div');
+  el.className = 'carte ' + etatJ(j);
+  el.innerHTML = `<div class="tete">
+      <span class="nom"></span>
+      <span class="tampon">${d}.${m}<small>${libelle(j)}</small></span>
+    </div>
+    <div class="actions">
+      <div class="etiq">Nom, quantité et date</div>
+      <div class="rang">
+        <input type="text" maxlength="80">
+        <input type="number" min="1" max="99" value="${q}">
+      </div>
+      <div class="rang"><input type="date" value="${it.dlc}"></div>
+      <div class="rang">
+        <button class="btn" data-a="ok">Consommé −1</button>
+        <button class="btn jaune" data-a="ouvert">Entamé</button>
+      </div>
+      <div class="rang"><button class="btn danger" data-a="ko">Tout retirer</button></div>
+    </div>`;
+
+  const nom = el.querySelector('.nom');
+  nom.textContent = it.nom;                       // textContent : pas d'injection possible
+  if(q > 1){ const b = document.createElement('span'); b.className = 'qte'; b.textContent = '×' + q; nom.appendChild(b); }
+  const bas = [it.lieu, it.entame ? 'entamé' : ''].filter(Boolean);
+  if(bas.length){
+    const s = document.createElement('span'); s.className = 'sous';
+    s.textContent = bas[0];
+    if(it.entame){ const e = document.createElement('em'); e.textContent = (it.lieu ? ' · ' : '') + 'entamé'; s.appendChild(e); }
+    nom.appendChild(s);
+  }
+
+  const champNom = el.querySelector('input[type=text]');
+  champNom.value = it.nom;
+  el.querySelector('.tete').onclick = () => el.classList.toggle('ouvert');
+  champNom.onchange = e => {
+    const v = e.target.value.trim().slice(0,80);
+    v && v !== it.nom ? modifier(it.id, { nom:v, lieu: devineLieu(v) }) : (e.target.value = it.nom);
+  };
+  el.querySelector('input[type=number]').onchange = e =>
+    modifier(it.id, { quantite: Math.min(99, Math.max(1, parseInt(e.target.value, 10) || 1)) });
+  el.querySelector('input[type=date]').onchange = e => { if(e.target.value) modifier(it.id, { dlc: e.target.value }); };
+  el.querySelector('[data-a="ok"]').onclick     = () => consommer(it);
+  el.querySelector('[data-a="ouvert"]').onclick = () => entamer(it);
+  el.querySelector('[data-a="ko"]').onclick     = () => jeter(it);
+  return el;
+}
+
+$('purger').onclick = () => {
+  const vieux = items.filter(i => restant(i.dlc) < 0);
+  retirerPlusieurs(vieux, vieux.length + ' produit' + (vieux.length>1?'s dépassés retirés':' dépassé retiré'));
+};
+$('vider').onclick = () => {
+  if(!items.length){ $('note').textContent = 'Le stock est déjà vide.'; return; }
+  if(confirm('Retirer les ' + items.length + ' produits du stock ?')) retirerPlusieurs([...items], 'Stock vidé');
+};
+
+/* ══════ relecture avant ajout ══════ */
+$('lireBtn').onclick = () => {
+  const txt = $('saisie').value;
+  if(!txt.trim()) return;
+  enAttente = lire(txt);
+  let sansDate = false;
+  if(!enAttente.length){
+    const d = jour0(); d.setDate(d.getDate() + 7);
+    enAttente = txt.split(/[\n,;•]|\s+(?:et|puis)\s+/i).map(t => t.trim()).filter(Boolean)
+      .map(t => { const q = extraireQuantite(t); const nom = nettoyer(q.reste);
+                  return nom ? { nom, dlc: iso(d), lieu: devineLieu(nom), quantite: q.qte } : null; })
+      .filter(Boolean);
+    if(!enAttente.length){ $('note').textContent = 'Rien à ajouter.'; return; }
+    sansDate = true;
+  }
+  ouvrirPanneau(sansDate);
+};
+function ouvrirPanneau(sansDate){
+  $('sousTitre').textContent = sansDate
+    ? "Aucune date reconnue : elles sont provisoirement fixées à J+7. Corrigez-les avant d'ajouter."
+    : `${enAttente.length} produit${enAttente.length>1?'s reconnus':' reconnu'} — corrigez le nom, la quantité ou la date.`;
+  const zone = $('relecture');
+  zone.innerHTML = '';
+  enAttente.forEach((o, i) => {
+    const r = document.createElement('div');
+    r.className = 'relu';
+    const n = document.createElement('input'); n.type = 'text'; n.maxLength = 80; n.value = o.nom;
+    const q = document.createElement('input'); q.type = 'number'; q.min = 1; q.max = 99; q.value = o.quantite;
+    const d = document.createElement('input'); d.type = 'date'; d.value = o.dlc;
+    const x = document.createElement('button'); x.className = 'btn danger'; x.textContent = '✕';
+    n.oninput  = e => o.nom = e.target.value;
+    q.onchange = e => o.quantite = Math.min(99, Math.max(1, parseInt(e.target.value,10) || 1));
+    d.onchange = e => o.dlc = e.target.value;
+    x.onclick  = () => { enAttente.splice(i,1); enAttente.length ? ouvrirPanneau(sansDate) : fermerPanneau(); };
+    r.append(n, q, d, x);
+    zone.appendChild(r);
+  });
+  $('voile').classList.add('on');
+}
+const fermerPanneau = () => $('voile').classList.remove('on');
+$('annuler').onclick = fermerPanneau;
+$('confirmer').onclick = () => {
+  const bons = enAttente
+    .filter(o => o.nom.trim() && /^\d{4}-\d{2}-\d{2}$/.test(o.dlc))
+    .map(o => ({ nom:o.nom.trim().slice(0,80), dlc:o.dlc, lieu:devineLieu(o.nom), quantite:o.quantite || 1 }));
+  fermerPanneau();
+  if(!bons.length) return;
+  const n = ajouter(bons);
+  enAttente = [];
+  $('saisie').value = '';
+  $('note').textContent = n + (n>1 ? ' produits ajoutés.' : ' produit ajouté.');
+};
+
+/* ══════ session ══════ */
+function montrerApp(){ $('porte').classList.add('cache'); $('app').classList.remove('cache'); $('barre').classList.remove('cache'); }
+function montrerPorte(msg){
+  $('porte').classList.remove('cache'); $('app').classList.add('cache'); $('barre').classList.add('cache');
+  $('erreur').textContent = msg || '';
+}
+async function ouvrirSession(){
+  const { data, error } = await sb.from('foyer_membres').select('foyer_id').single();
+  if(error || !data){ montrerPorte("Ce compte n'est rattaché à aucun foyer."); return; }
+  foyer = data.foyer_id;
+  montrerApp();
+  majFil();
+  await vider();
+  await recharger();
+  if(canal) sb.removeChannel(canal);
+  canal = sb.channel('foyer-' + foyer)
+    .on('postgres_changes', { event:'*', schema:'public', table:'produits', filter:'foyer_id=eq.' + foyer }, recharger)
+    .subscribe(s => { if(s === 'CHANNEL_ERROR') fil('coupe','Temps réel interrompu — rouvrez l\'app'); });
+}
+async function demarrer(){
+  majEntete();
+  items = lireJSON(CACHE);
+  attente = lireJSON(ATTENTE);
+  try{ filtre = localStorage.getItem(FILTRE) || 'tous'; }catch(e){}
+  document.querySelectorAll('.puce').forEach(p => p.classList.toggle('actif', p.dataset.lieu === filtre));
+  if(!distant){ montrerApp(); majFil(); rendre(); return; }
+  const { data:{ session } } = await sb.auth.getSession();
+  session ? await ouvrirSession() : montrerPorte();
+}
+
+$('entrer').onclick = async () => {
+  $('erreur').textContent = '';
+  const { error } = await sb.auth.signInWithPassword({ email: $('email').value.trim(), password: $('mdp').value });
+  if(error){ $('erreur').textContent = 'Identifiants refusés.'; return; }
+  $('mdp').value = '';
+  await ouvrirSession();
+};
+$('mdp').addEventListener('keydown', e => { if(e.key === 'Enter') $('entrer').click(); });
+$('sortir').onclick = async () => {
+  if(attente.length && !confirm(attente.length + ' modification(s) ne sont pas encore envoyées. Se déconnecter quand même ?')) return;
+  if(canal) sb.removeChannel(canal);
+  try{ localStorage.removeItem(CACHE); localStorage.removeItem(ATTENTE); }catch(e){}
+  await sb.auth.signOut();
+  items = []; attente = []; foyer = null; canal = null;
+  montrerPorte('');
+};
+
+window.addEventListener('online',  () => { majFil(); if(foyer) vider().then(recharger); });
+window.addEventListener('offline', () => majFil());
+document.addEventListener('visibilitychange', () => { if(!document.hidden && foyer){ vider(); recharger(); } });
+
+if('serviceWorker' in navigator){ try{ navigator.serviceWorker.register('sw.js'); }catch(e){} }
+demarrer();
+</script>
+</body>
+</html>

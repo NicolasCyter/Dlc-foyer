@@ -1,0 +1,13 @@
+{
+  "name": "Dates — DLC de mes courses",
+  "short_name": "Dates",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#10201D",
+  "theme_color": "#10201D",
+  "icons": [
+    { "src": "icone.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
