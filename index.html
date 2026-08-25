@@ -312,8 +312,31 @@ const DATE_GLOBALE = [
   '\\ble\\s+\\d{1,2}\\b'
 ].join('|');
 
+const EN_LETTRES = {
+  'premier':1,'un':1,'une':1,'deux':2,'trois':3,'quatre':4,'cinq':5,'six':6,'sept':7,'huit':8,
+  'neuf':9,'dix':10,'onze':11,'douze':12,'treize':13,'quatorze':14,'quinze':15,'seize':16,
+  'dix-sept':17,'dix sept':17,'dix-huit':18,'dix huit':18,'dix-neuf':19,'dix neuf':19,'vingt':20,
+  'vingt et un':21,'vingt-et-un':21,'vingt deux':22,'vingt-deux':22,'vingt trois':23,'vingt-trois':23,
+  'vingt quatre':24,'vingt-quatre':24,'vingt cinq':25,'vingt-cinq':25,'vingt six':26,'vingt-six':26,
+  'vingt sept':27,'vingt-sept':27,'vingt huit':28,'vingt-huit':28,'vingt neuf':29,'vingt-neuf':29,
+  'trente':30,'trente et un':31,'trente-et-un':31
+};
+const MOTS_NOMBRES = Object.keys(EN_LETTRES).sort((a,b) => b.length - a.length).join('|');
+
+/* La dictée écrit souvent les nombres en toutes lettres : « vingt-trois août ». */
+function normaliserNombres(t){
+  const mille = new RegExp('\\bdeux\\s+mille\\s+(' + MOTS_NOMBRES + ')\\b', 'gi');
+  t = t.replace(mille, (x, mot) => 2000 + EN_LETTRES[mot.toLowerCase()]);
+  const apres = new RegExp('\\b(' + MOIS_RE + ')\\s+(' + MOTS_NOMBRES + ')\\b', 'gi');
+  t = t.replace(apres, (x, mo, mot) => mo + ' ' + EN_LETTRES[mot.toLowerCase()]);
+  const av = new RegExp('\\b(' + MOTS_NOMBRES + ')\\s+(?=(?:' + MOIS_RE + ')\\b)', 'gi');
+  t = t.replace(av, (x, mot) => EN_LETTRES[mot.toLowerCase()] + ' ');
+  const qt = new RegExp('(^|[,;\\n]\\s*)(' + MOTS_NOMBRES + ')\\s+(?=\\S)', 'gi');
+  return t.replace(qt, (x, sep, mot) => sep + EN_LETTRES[mot.toLowerCase()] + ' ');
+}
+
 function lire(texte){
-  const t = texte.replace(/\r/g,' ').replace(/\n/g,' , ').replace(/\s+/g,' ');
+  const t = normaliserNombres(texte.replace(/\r/g,' ').replace(/\n/g,' , ').replace(/\s+/g,' '));
   const re = new RegExp(DATE_GLOBALE, 'gi');
   const out = [];
   let debut = 0, m;
