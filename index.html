@@ -122,6 +122,8 @@ h1 em{font-style:normal;color:var(--ambre)}
   font-weight:700;margin:0 0 9px;padding-left:6px;display:flex;align-items:center;gap:9px}
 .groupe h2 b{background:var(--creme-2);color:var(--doux);border-radius:999px;
   padding:2px 8px;font-size:11px;font-weight:700}
+.groupe.entames h2{color:oklch(48% 0.13 70)}
+.groupe.entames h2 b{background:oklch(86% 0.155 88 / .5);color:oklch(42% 0.13 70)}
 .groupe h2.pliable{cursor:pointer}
 .groupe h2 .fleche{margin-left:auto;font-size:15px;font-weight:400;color:var(--pale);
   width:24px;height:24px;border-radius:50%;background:var(--blanc);
@@ -199,6 +201,9 @@ h1 em{font-style:normal;color:var(--ambre)}
 .source{margin:2px 2px 0;font-size:11.5px;line-height:1.5;color:var(--doux);font-weight:500}
 .aide{margin:0 2px;font-size:11px;line-height:1.5;color:var(--pale)}
 .source.inconnu{color:var(--ambre)}
+.source.gel{color:var(--gel)}
+.source.gel.inconnu{color:var(--ambre)}
+.sous .gele{color:var(--gel);font-weight:600}
 .outils #ranger{flex-basis:100%}
 .btn.gel{color:var(--gel)}
 .btn.choisi{background:var(--encre);color:var(--blanc)}
@@ -427,7 +432,7 @@ if(distant){
   sb = createClient(CONFIG.url, CONFIG.anonKey, { auth:{ persistSession:true, autoRefreshToken:true } });
 }
 
-const VERSION = 'v10 — 25 août 17h';
+const VERSION = 'v12 — 25 août 18h';
 const CACHE  = 'dlc-cache-v7';
 const ATTENTE = 'dlc-attente-v7';
 const FILTRE = 'dlc-filtre-v7';
@@ -509,6 +514,45 @@ const CONSERVATION = [
   [['moutarde forte','moutarde de dijon'], 270, M + ' — moutarde forte'],
   [['ketchup','marinade','cornichon','pickles','moutarde','olive','sirop d','vinaigre'], 365, M + ' — condiments et tartinades']
 ];
+
+/* Congélation — durées du Thermoguide (MAPAQ), bornes basses. Un produit absent
+   de ces listes ne reçoit aucune suggestion. */
+const JAMAIS_CONGELER = ['laitue','salade','mâche','mache','roquette','concombre','radis','céleri','endive',
+  'melon','pastèque','raisin','germe','pousse','œuf en coquille','oeuf en coquille','œuf dur','oeuf dur',
+  'fromage à pâte molle','camembert','brie','coulommiers','reblochon','munster','époisses','saint-marcellin',
+  'fromage frais','faisselle','fromage blanc','cottage','ricotta','mozzarella','burrata','stracciatella',
+  'bleu','roquefort','gorgonzola','fourme','fromage fondu','vache qui rit','kiri','babybel',
+  'huître','huitre','moule dans','palourde dans','saucisson sec','yaourt','skyr','crème fraîche','creme fraiche',
+  'mayonnaise','sauce à salade','vinaigrette','pomme de terre cuite','tomate fraîche'];
+
+const CONGELABLE = [
+  [['viande hachée','steak haché','haché','farce','chair à saucisse'], 3],
+  [['saucisse','merguez','chipolata','knacki'], 2],
+  [['jambon','charcuterie','lardon','allumette','bacon','viande fumée','chorizo','coppa','pancetta'], 1],
+  [['bœuf','boeuf','steak','rôti','côte de','côtelette','entrecôte','bavette','onglet','porc','veau','agneau','viande'], 6],
+  [['poulet','dinde','canard','pintade','volaille','escalope','cuisse','magret','aiguillette'], 6],
+  [['saumon','truite','poisson gras','maquereau','sardine fraîche'], 2],
+  [['cabillaud','colin','merlu','sole','tilapia','dorade','lieu noir','poisson maigre','poisson blanc'], 6],
+  [['crevette','gambas','pétoncle','langoustine','crabe'], 2],
+  [['pain','brioche','baguette','viennoiserie','croissant','muffin','galette','wrap','tortilla'], 3],
+  [['comté','comte','emmental','gruyère','beaufort','cantal','tomme','morbier','raclette','gouda','edam','cheddar','parmesan','parmigiano','fromage râpé','pâte ferme','pâte pressée'], 6],
+  [['beurre','margarine'], 3],
+  [['lait'], 1],
+  [['soupe','potage','velouté','sauce à la viande','sauce bolognaise'], 2],
+  [['lasagne','hachis','gratin','quiche','plat cuisiné','mets en casserole','tarte','pizza'], 3],
+  [['pâtes cuites','riz cuit','légumineuse','lentille cuite','pois chiche cuit'], 3],
+  [['gnocchi','ravioli','tortellini','pâtes fraîches','pâte feuilletée','pâte brisée','pâte à pizza'], 2],
+  [['légume','brocoli','haricot vert','épinard','petits pois','poivron','courgette','carotte','chou'], 12],
+  [['fruit','fraise','framboise','myrtille','cerise','pêche','abricot','banane','mangue'], 12],
+  [['tofu','seitan','boulettes végétales'], 2]
+];
+function congelable(nom){
+  const n = nom.toLowerCase();
+  if(JAMAIS_CONGELER.some(m => n.includes(m))) return { possible:false };
+  for(const [mots, mois] of CONGELABLE) if(mots.some(m => n.includes(m)))
+    return { possible:true, mois, source:'Thermoguide, MAPAQ' };
+  return null;
+}
 
 /* Famille visuelle : détermine la pastille affichée à gauche de chaque ligne. */
 const FAMILLES = [
@@ -619,7 +663,7 @@ function extraireDate(txt){
       return { date: d, brut: m[0] }; } }
   return null;
 }
-const LIAISONS = /^(?:et|puis|ensuite|alors|aussi|donc|apr[èe]s|j['’]ai|jai|il\s+y\s+a|il\s+me\s+reste|on\s+a|avec|plus|des|les|le|la|du|de|un\s+peu\s+de)\s+/i;
+const LIAISONS = /^(?:et|puis|ensuite|alors|aussi|donc|apr[èe]s|j\s*['’]?\s*ai|il\s+y\s+a|il\s+me\s+reste|on\s+a|nous\s+avons|avec|plus|des|les|le|la|du|de|un\s+peu\s+de)\s+/i;
 function extraireQuantite(txt){
   let t = txt.trim(), coupe = true;
   while(coupe){                                   // « et j'ai trois mozzarella » → « trois mozzarella »
@@ -627,7 +671,8 @@ function extraireQuantite(txt){
     const l = t.match(LIAISONS);
     if(l && !/^(?:un|une)\s/i.test(l[0])){ t = t.slice(l[0].length); coupe = true; }
   }
-  let m = t.match(/^(\d{1,2}|un|une|deux|trois|quatre|cinq|six|sept|huit|neuf|dix|onze|douze)\s+(?=\S)/i);
+  let m = t.match(/^(\d{1,2}|un|une|deux|trois|quatre|cinq|six|sept|huit|neuf|dix|onze|douze)\s*[.,]?\s+(?=\S)/i);
+  if(!m) m = t.match(/^(\d{1,2})\s*x\s*[.,]?\s+(?=\S)/i);    // « 4x camembert »
   if(!m) m = t.match(/^(?:x\s*)(\d{1,2})\s+(?=\S)/i);        // « x3 mozzarella »
   if(!m){
     const fin = t.match(/\s+x\s*(\d{1,2})$/i);                 // « mozzarella x3 »
@@ -638,6 +683,8 @@ function extraireQuantite(txt){
   if(!v || v < 1 || v > 99) return { qte:1, reste:t };
   return { qte:v, reste: t.slice(m[0].length) };
 }
+/* « boîte de six œufs », « pack de 4 yaourts », « 12 œufs » → contenu du lot */
+
 function nettoyer(nom){
   const mots = nom.replace(/[.;:!?]+/g,' ').split(/\s+/).filter(Boolean);
   while(mots.length && VIDES.test(mots[0])) mots.shift();
@@ -676,6 +723,16 @@ function normaliserNombres(t){
   return t.replace(qt, (x, sep, mot) => sep + EN_LETTRES[mot.toLowerCase()] + ' ');
 }
 
+/* « boîte de six œufs », « pack de 4 yaourts » → contenu du lot */
+function detecterContenu(nom){
+  const n = nom.toLowerCase();
+  let m = n.match(new RegExp('(?:bo[\u00eei]te|pack|lot|paquet|barquette|plaque|plaquette|rouleau)\\s+de\\s+(\\d{1,2}|' + MOTS_NOMBRES + ')\\b', 'i'));
+  if(!m) m = n.match(new RegExp('\\b(\\d{1,2}|' + MOTS_NOMBRES + ')\\s+(?:\u0153ufs|oeufs|yaourts|pots|tranches|portions|unit[\u00e9e]s|parts|capsules|dosettes)\\b', 'i'));
+  if(!m) return null;
+  const v = /^\d+$/.test(m[1]) ? +m[1] : EN_LETTRES[m[1].toLowerCase()];
+  return (v >= 2 && v <= 99) ? v : null;
+}
+
 function lire(texte){
   const t = normaliserNombres(texte.replace(/\r/g,' ').replace(/\n/g,' , ').replace(/\s+/g,' '));
   const re = new RegExp(DATE_GLOBALE, 'gi');
@@ -688,7 +745,10 @@ function lire(texte){
     debut = m.index + m[0].length;
     const q = extraireQuantite(avant);
     const nom = nettoyer(q.reste);
-    if(nom) out.push({ nom, dlc: iso(d.date), lieu: devineLieu(nom), quantite: q.qte });
+    if(!nom) continue;
+    const lot = detecterContenu(nom);
+    out.push({ nom, dlc: iso(d.date), lieu: devineLieu(nom), quantite: q.qte,
+               contenu: lot, contenu_restant: lot });
   }
   return out;
 }
@@ -775,7 +835,8 @@ async function recharger(){
 function ajouter(lots){
   const lignes = lots.map(o => ({
     id: crypto.randomUUID(), nom:o.nom, dlc:o.dlc, lieu:o.lieu || '',
-    quantite:o.quantite || 1, entame:false, congele_le:null, dlc_avant:null, ...(foyer ? { foyer_id:foyer } : {})
+    quantite:o.quantite || 1, entame:false, congele_le:null, dlc_avant:null, entame_le:null, entame_nb:0,
+    contenu: o.contenu || null, contenu_restant: (o.contenu_restant != null ? o.contenu_restant : (o.contenu || null)), ...(foyer ? { foyer_id:foyer } : {})
   }));
   items.push(...lignes); cacheEcrire(); rendre();
   empiler({ type:'insert', lignes });
@@ -820,6 +881,33 @@ function proposerAnnulation(texte, action){
 function fermerToast(){ $('toast').classList.remove('on'); annulation = null; }
 $('toastBtn').onclick = () => { if(annulation) annulation(); fermerToast(); };
 
+/* Une unité prise dans un lot : « il reste 4 œufs sur 6 » */
+function prendreUnite(it){
+  const avant = { contenu_restant: it.contenu_restant, quantite: it.quantite,
+                  entame: !!it.entame, entame_le: it.entame_le || null, entame_nb: it.entame_nb || 0 };
+  const actuel = (it.contenu_restant == null ? it.contenu : it.contenu_restant);
+  const reste = actuel - 1;
+  if(reste > 0){
+    modifier(it.id, { contenu_restant: reste, entame: true,
+                      entame_le: it.entame_le || iso(jour0()),
+                      entame_nb: Math.max(1, it.entame_nb || 1) });
+    proposerAnnulation('Il reste ' + reste + ' sur ' + it.contenu + ' — ' + it.nom,
+      () => modifier(it.id, avant));
+    return;
+  }
+  const q = (it.quantite || 1) - 1;
+  if(q > 0){
+    modifier(it.id, { quantite:q, contenu_restant: it.contenu,
+                      entame:false, entame_le:null, entame_nb:0 });
+    proposerAnnulation('Lot terminé — il en reste ' + q,
+      () => modifier(it.id, avant));
+  }else{
+    const copie = { ...it };
+    retirer(it.id);
+    proposerAnnulation(it.nom + ' — terminé', () => restaurer(copie));
+  }
+}
+
 function consommer(it){
   const avant = { ...it };
   const q = (it.quantite || 1) - 1;
@@ -838,10 +926,13 @@ function jeter(it){
 }
 /* Entamé : un produit ouvert ne tient plus que quelques jours. */
 function entamer(it){
-  const avant = { dlc: it.dlc, entame: !!it.entame, dlc_avant: it.dlc_avant || null };
+  const avant = { dlc: it.dlc, entame: !!it.entame, dlc_avant: it.dlc_avant || null,
+                  entame_le: it.entame_le || null, entame_nb: it.entame_nb || 0 };
   if(it.entame){                                  // deuxième appui : on retire la marque
     const rendue = it.dlc_avant && !it.congele_le;
-    modifier(it.id, rendue ? { entame:false, dlc: it.dlc_avant, dlc_avant:null } : { entame:false });
+    modifier(it.id, rendue
+      ? { entame:false, dlc: it.dlc_avant, dlc_avant:null, entame_le:null, entame_nb:0 }
+      : { entame:false, entame_le:null, entame_nb:0 });
     proposerAnnulation(
       rendue ? it.nom + ' : date d\u2019origine rétablie'
              : it.nom + ' n\u2019est plus marqué entamé',
@@ -858,7 +949,10 @@ function entamer(it){
   const d = jour0(); d.setDate(d.getDate() + info.jours);
   const neuve = iso(d);
   const retenue = neuve < it.dlc ? neuve : it.dlc;
-  modifier(it.id, { dlc: retenue, entame:true, dlc_avant: it.dlc_avant || it.dlc });
+  const dejaOuverts = it.entame_nb || 0;
+  modifier(it.id, { dlc: retenue, entame:true, dlc_avant: it.dlc_avant || it.dlc,
+                    entame_le: it.entame_le || iso(jour0()),
+                    entame_nb: Math.min(it.quantite || 1, dejaOuverts + 1) });
   proposerAnnulation(
     retenue === neuve
       ? it.nom + ' : ' + info.jours + ' jour' + (info.jours>1?'s':'') + ' — ' + info.source
@@ -878,13 +972,15 @@ function congeler(it){
       () => modifier(it.id, avant));
     return;
   }
-  const d = jour0(); d.setMonth(d.getMonth() + MOIS_AU_CONGELATEUR);
+  const info = congelable(it.nom);
+  const mois = (info && info.possible) ? info.mois : MOIS_AU_CONGELATEUR;
+  const d = jour0(); d.setMonth(d.getMonth() + mois);
   if(restant(iso(d)) > 90 && !longuesOuvertes){    // sinon le produit disparaîtrait dans un groupe replié
     longuesOuvertes = true;
     try{ localStorage.setItem(LONGUES, '1'); }catch(e){}
   }
   modifier(it.id, { dlc: iso(d), lieu: 'congélateur', congele_le: iso(jour0()), dlc_avant: it.dlc_avant || it.dlc });
-  proposerAnnulation(it.nom + ' congelé — à consommer sous ' + MOIS_AU_CONGELATEUR + ' mois',
+  proposerAnnulation(it.nom + ' congelé — à consommer sous ' + mois + ' mois',
     () => modifier(it.id, avant));
 }
 
@@ -924,18 +1020,22 @@ function rendre(){
   const urgents = vus.filter(i => { const j = restant(i.dlc); return j >= 0 && j <= 2; }).length;
   const total   = vus.length;
 
+  const entames = vus.filter(i => i.entame).length;
   let ton = 'calme', chiffre = '0', titre = 'Rien d’urgent', detail = '';
   if(perimes){
     ton = 'alerte';
     chiffre = String(perimes);
     titre = perimes > 1 ? 'produits dépassés' : 'produit dépassé';
-    detail = urgents ? 'et ' + urgents + ' à manger sous 48 h' : 'à retirer du stock';
+    detail = urgents ? 'et ' + urgents + ' à manger sous 48 h'
+                     : (entames ? 'et ' + entames + ' entamé' + (entames>1?'s':'') + ' à finir' : 'à retirer du stock');
   }else if(urgents){
     ton = '';
     chiffre = String(urgents);
     titre = urgents > 1 ? 'produits à manger sous 48 h' : 'produit à manger sous 48 h';
-    detail = total + ' produit' + (total > 1 ? 's' : '') + ' en stock';
+    detail = (entames ? entames + ' entamé' + (entames>1?'s':'') + ' à finir · ' : '')
+           + total + ' produit' + (total > 1 ? 's' : '') + ' en stock';
   }else{
+    if(entames){ chiffre = String(entames); titre = entames > 1 ? 'produits entamés à finir' : 'produit entamé à finir'; }
     detail = total + ' produit' + (total > 1 ? 's' : '') + ' en stock';
   }
 
@@ -948,15 +1048,16 @@ function rendre(){
   if(detail) tx.appendChild(document.createTextNode(detail));
   resume.append(nb, tx);
 
-  [['Dépassé', j => j < 0, false],
-   ['Sous 48 heures', j => j >= 0 && j <= 2, false],
-   ['Cette semaine', j => j > 2 && j <= 7, false],
-   ['Ce mois-ci', j => j > 7 && j <= 90, false],
-   ['Se garde longtemps', j => j > 90, true]].forEach(([titre, test, pliable]) => {
-    const lot = vus.filter(i => test(restant(i.dlc)));
+  [['Dépassé', i => restant(i.dlc) < 0, false],
+   ['À finir — déjà entamés', i => i.entame && restant(i.dlc) >= 0, false],
+   ['Sous 48 heures', i => !i.entame && restant(i.dlc) >= 0 && restant(i.dlc) <= 2, false],
+   ['Cette semaine', i => !i.entame && restant(i.dlc) > 2 && restant(i.dlc) <= 7, false],
+   ['Ce mois-ci', i => !i.entame && restant(i.dlc) > 7 && restant(i.dlc) <= 90, false],
+   ['Se garde longtemps', i => !i.entame && restant(i.dlc) > 90, true]].forEach(([titre, test, pliable]) => {
+    const lot = vus.filter(test);
     if(!lot.length) return;
     const bloc = document.createElement('div');
-    bloc.className = 'groupe';
+    bloc.className = 'groupe' + (titre.startsWith('À finir') ? ' entames' : '');
     const h = document.createElement('h2');
     h.textContent = titre + ' ';
     const compteur = document.createElement('b');
@@ -1020,11 +1121,12 @@ function carte(it){
         <button class="btn gel" data-a="gele"><svg class="i"><use href="#ic-gel"/></svg>Congelé</button>
       </div>
       <p class="source"></p>
-      <p class="aide">Marquer un produit entamé rapproche sa date : une fois ouvert, il se garde moins longtemps.</p>
+      <p class="source gel" id="srcGel"></p>
+      <p class="aide">Marquer un produit entamé rapproche sa date. Le congeler la repousse.</p>
 
       <div class="etiq">Le faire sortir du stock</div>
       <div class="rang">
-        ${q > 1 ? '<button class="btn" data-a="ok"><svg class="i"><use href="#ic-moins"/></svg>J’en ai mangé un</button>' : ''}
+        ${(it.contenu || q > 1) ? '<button class="btn" data-a="ok"><svg class="i"><use href="#ic-moins"/></svg>J’en ai pris un</button>' : ''}
         <button class="btn danger" data-a="ko"><svg class="i"><use href="#ic-poubelle"/></svg>${q > 1 ? 'Il n’y en a plus' : 'Je l’ai consommé ou jeté'}</button>
       </div>
     </div></div></div>`;
@@ -1053,9 +1155,18 @@ function carte(it){
   };
   bout(d + '.' + m);
   if(it.lieu) bout(it.lieu === 'congélateur' ? 'Congélo' : it.lieu.charAt(0).toUpperCase() + it.lieu.slice(1));
+  if(it.contenu){
+    const r = (it.contenu_restant == null ? it.contenu : it.contenu_restant);
+    bout('Reste ' + r + ' sur ' + it.contenu, r <= 1 ? 'ouvert' : '');
+  }
   if(it.entame){
-    const src = joursOuvert(it.nom);
-    bout('Entamé', 'ouvert');
+    let txt = 'Entamé';
+    if(q > 1) txt += ' ' + (it.entame_nb || 1) + '/' + q;
+    if(it.entame_le) txt += ' · ' + it.entame_le.slice(8,10) + '.' + it.entame_le.slice(5,7);
+    bout(txt, 'ouvert');
+  }else if(restant(it.dlc) <= 2 && !it.congele_le){
+    const c = congelable(it.nom);
+    if(c && c.possible) bout('À congeler ?', 'gele');
   }
   if(it.congele_le) bout('Congelé le ' + it.congele_le.slice(8,10) + '.' + it.congele_le.slice(5,7), 'gele');
   el.querySelector('.corps').appendChild(sous);
@@ -1084,7 +1195,20 @@ function carte(it){
     b.onclick = () => modifier(it.id, { lieu: it.lieu === b.dataset.l ? '' : b.dataset.l });
   });
   const info = joursOuvert(it.nom);
-  const ligneSrc = el.querySelector('.source');
+  const ligneSrc = el.querySelector('.source:not(.gel)');
+  const ligneGel = el.querySelector('.source.gel');
+  const cg = congelable(it.nom);
+  if(it.congele_le){
+    ligneGel.textContent = 'Congelé le ' + it.congele_le.slice(8,10) + '.' + it.congele_le.slice(5,7) + '.';
+  }else if(cg && cg.possible){
+    ligneGel.textContent = 'Se congèle : ' + cg.mois + ' mois au congélateur · source : ' + cg.source;
+  }else if(cg){
+    ligneGel.textContent = 'Ce produit supporte mal la congélation (Thermoguide, MAPAQ).';
+    ligneGel.classList.add('inconnu');
+  }else{
+    ligneGel.textContent = 'Congélation : aucune donnée fiable pour ce produit.';
+    ligneGel.classList.add('inconnu');
+  }
   if(info){
     const [org, detail] = info.source.split(' — ');
     ligneSrc.textContent = 'Une fois entamé : ' + info.jours + ' jour' + (info.jours > 1 ? 's' : '')
@@ -1100,7 +1224,7 @@ function carte(it){
   bEnt.onclick = () => entamer(it);
   bGel.onclick = () => congeler(it);
   const bok = el.querySelector('[data-a="ok"]');
-  if(bok) bok.onclick = () => consommer(it);
+  if(bok) bok.onclick = () => it.contenu ? prendreUnite(it) : consommer(it);
   el.querySelector('[data-a="ko"]').onclick     = () => jeter(it);
   return el;
 }
@@ -1200,7 +1324,8 @@ $('annuler').onclick = fermerPanneau;
 $('confirmer').onclick = () => {
   const bons = enAttente
     .filter(o => o.nom.trim() && /^\d{4}-\d{2}-\d{2}$/.test(o.dlc))
-    .map(o => ({ nom:o.nom.trim().slice(0,80), dlc:o.dlc, lieu:devineLieu(o.nom), quantite:o.quantite || 1 }));
+    .map(o => ({ nom:o.nom.trim().slice(0,80), dlc:o.dlc, lieu:devineLieu(o.nom),
+                 quantite:o.quantite || 1, contenu:o.contenu || null, contenu_restant:o.contenu || null }));
   fermerPanneau();
   if(!bons.length) return;
   const n = ajouter(bons);
