@@ -103,6 +103,15 @@ h1 em{font-style:normal;color:var(--ambre)}
   color:oklch(30% 0.11 70);margin-bottom:2px}
 .verdict.calme .txt b{color:var(--encre)}
 
+.tirage{position:fixed;top:0;left:0;right:0;z-index:7;display:flex;align-items:center;
+  justify-content:center;gap:9px;height:0;overflow:hidden;
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--doux);background:var(--creme-2)}
+.tirage .rond-tirage{width:13px;height:13px;border-radius:50%;border:2px solid var(--pale);
+  border-top-color:var(--ambre)}
+.tirage.tourne .rond-tirage{animation:tourner .8s linear infinite}
+@keyframes tourner{to{transform:rotate(360deg)}}
+
 /* ── recherche ── */
 .chercher{display:flex;align-items:center;gap:9px;margin-top:16px;background:var(--blanc);
   border-radius:999px;padding:0 14px;box-shadow:var(--ombre);border:1px solid transparent;
@@ -364,6 +373,8 @@ textarea:focus{border-color:var(--miel)}
   </div>
 </div>
 
+<div class="tirage" id="tirage"><span class="rond-tirage"></span><b id="tirageTexte">Tirez pour actualiser</b></div>
+
 <div class="wrap cache" id="app">
   <header class="arrive">
     <div>
@@ -455,7 +466,7 @@ if(distant){
   sb = createClient(CONFIG.url, CONFIG.anonKey, { auth:{ persistSession:true, autoRefreshToken:true } });
 }
 
-const VERSION = 'v14 — 25 août 19h30';
+const VERSION = 'v15 — 25 août 20h';
 const CACHE  = 'dlc-cache-v7';
 const ATTENTE = 'dlc-attente-v7';
 const FILTRE = 'dlc-filtre-v7';
@@ -1436,7 +1447,62 @@ window.addEventListener('online',  () => { majFil(); if(foyer) vider().then(rech
 window.addEventListener('offline', () => majFil());
 document.addEventListener('visibilitychange', () => { if(!document.hidden && foyer){ vider(); recharger(); } });
 
-if('serviceWorker' in navigator){ try{ navigator.serviceWorker.register('sw.js'); }catch(e){} }
+/* ══════ tirer vers le bas pour actualiser ══════ */
+(() => {
+  const zone = $('tirage'), txt = $('tirageTexte');
+  const SEUIL = 70;
+  let depart = null, tire = 0, occupe = false;
+
+  const hauteur = h => { zone.style.height = Math.min(h, 90) + 'px'; };
+
+  addEventListener('touchstart', e => {
+    if(occupe || window.scrollY > 0 || e.touches.length !== 1) { depart = null; return; }
+    depart = e.touches[0].clientY;
+  }, { passive:true });
+
+  addEventListener('touchmove', e => {
+    if(depart === null || occupe) return;
+    tire = e.touches[0].clientY - depart;
+    if(tire <= 0){ hauteur(0); return; }
+    hauteur(tire * 0.5);
+    txt.textContent = tire * 0.5 >= SEUIL ? 'Relâchez pour actualiser' : 'Tirez pour actualiser';
+  }, { passive:true });
+
+  addEventListener('touchend', async () => {
+    if(depart === null || occupe){ depart = null; return; }
+    const assez = tire * 0.5 >= SEUIL;
+    depart = null; tire = 0;
+    if(!assez){ hauteur(0); return; }
+    occupe = true;
+    zone.classList.add('tourne');
+    hauteur(46);
+    txt.textContent = 'Actualisation…';
+    try{
+      if('serviceWorker' in navigator){
+        const reg = await navigator.serviceWorker.getRegistration();
+        if(reg) await reg.update();
+      }
+      if(foyer) await recharger();
+    }catch(e){}
+    txt.textContent = 'À jour';
+    setTimeout(() => { hauteur(0); zone.classList.remove('tourne'); occupe = false; }, 550);
+  }, { passive:true });
+})();
+
+if('serviceWorker' in navigator){
+  let recharge = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if(recharge) return;                          // une nouvelle version a pris la main
+    recharge = true;
+    location.reload();
+  });
+  navigator.serviceWorker.register('sw.js', { updateViaCache:'none' })
+    .then(reg => {
+      reg.update();                               // à chaque lancement
+      document.addEventListener('visibilitychange', () => { if(!document.hidden) reg.update(); });
+    })
+    .catch(() => {});
+}
 demarrer();
 </script>
 </body>
