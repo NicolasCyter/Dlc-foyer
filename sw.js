@@ -1,6 +1,6 @@
 // Cache minimal : l'app reste utilisable hors ligne une fois ouverte.
 // Le nom du cache change à chaque version pour forcer le rafraîchissement.
-const CACHE = 'dlc-v10';
+const CACHE = 'dlc-v12';
 const FICHIERS = ['./', './index.html', './manifest.json', './icone.png', './icone-180.png'];
 
 self.addEventListener('install', e => {
