@@ -5,9 +5,14 @@
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#10201D",
-  "theme_color": "#10201D",
+  "background_color": "#FCF3DC",
+  "theme_color": "#FCF3DC",
   "icons": [
-    { "src": "icone.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+    {
+      "src": "icone.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
   ]
 }
