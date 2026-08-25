@@ -108,7 +108,7 @@ h1 em{font-style:normal;color:var(--ambre)}
   border-radius:999px;padding:0 14px;box-shadow:var(--ombre);border:1px solid transparent;
   transition:border-color var(--court)}
 .chercher:focus-within{border-color:var(--miel)}
-.chercher svg.i{font-size:17px;color:var(--pale);stroke-width:2;flex-shrink:0}
+.chercher svg.i{font-size:19px;color:var(--doux);stroke-width:2.4;flex-shrink:0}
 .chercher input{flex:1;min-width:0;border:none;background:none;padding:13px 0;font-size:15px;
   font-family:var(--sans);color:var(--encre)}
 .chercher input:focus{outline:none;background:none;border:none}
@@ -176,12 +176,13 @@ h1 em{font-style:normal;color:var(--ambre)}
 .semaine .jauge{background:var(--vert)}
 .corps{min-width:0}
 .nom{font-weight:600;font-size:15.5px;letter-spacing:-.012em;line-height:1.3;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .qte{font-size:11.5px;font-weight:700;color:var(--doux);background:var(--creme);
   border-radius:999px;padding:2px 7px;margin-left:7px;vertical-align:1.5px}
-.sous{margin-top:3px;font-size:12px;color:var(--pale);line-height:1.35;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.sous span{margin-right:6px}
+.sous{margin-top:4px;font-size:12px;color:var(--pale);line-height:1.4;
+  display:flex;flex-wrap:wrap;align-items:baseline;gap:0 6px}
+.sous span{white-space:nowrap}
+.sous .sep{opacity:.4}
 .sous .sep{opacity:.45}
 .sous .ouvert{color:var(--ambre);font-weight:600}
 .sous .gele{color:var(--gel);font-weight:600}
@@ -454,7 +455,7 @@ if(distant){
   sb = createClient(CONFIG.url, CONFIG.anonKey, { auth:{ persistSession:true, autoRefreshToken:true } });
 }
 
-const VERSION = 'v13 — 25 août 19h';
+const VERSION = 'v14 — 25 août 19h30';
 const CACHE  = 'dlc-cache-v7';
 const ATTENTE = 'dlc-attente-v7';
 const FILTRE = 'dlc-filtre-v7';
@@ -792,7 +793,7 @@ function alerter(texte){
 }
 function fil(etat, texte){ $('fil').className = 'fil ' + etat; $('filTexte').textContent = texte; }
 function majFil(){
-  if(!distant){ fil('', 'Mode local — Supabase non configuré'); return; }
+  if(!distant){ fil('', 'Mode local'); return; }
   if(attente.length){ fil('attente', attente.length + ' modification' + (attente.length>1?'s':'') + ' en attente'); return; }
   if(alerte) return;
   navigator.onLine ? fil('vivant','Synchronisé avec le foyer') : fil('coupe','Hors ligne — liste en cache');
