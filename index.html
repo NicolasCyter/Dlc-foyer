@@ -113,6 +113,10 @@ h1 em{font-style:normal;color:var(--ambre)}
   font-weight:700;margin:0 0 10px;padding-left:4px;display:flex;align-items:center;gap:8px}
 .groupe h2 b{background:var(--creme-2);color:var(--doux);border-radius:999px;
   padding:2px 8px;font-size:11px}
+.groupe h2.pliable{cursor:pointer}
+.groupe h2 .fleche{margin-left:auto;font-size:15px;font-weight:400;color:var(--pale);
+  width:22px;height:22px;border-radius:50%;background:var(--creme-2);
+  display:flex;align-items:center;justify-content:center}
 
 /* ── carte produit ── */
 .carte{background:var(--blanc);border-radius:var(--r-carte);margin-bottom:10px;
@@ -129,19 +133,30 @@ h1 em{font-style:normal;color:var(--ambre)}
 .urgent  .compte{background:var(--miel);color:oklch(38% 0.13 70)}
 .semaine .compte{background:oklch(70% 0.145 152 / .16);color:var(--vert-f)}
 .nom{font-weight:600;font-size:16px;letter-spacing:-.01em;overflow-wrap:anywhere;min-width:0}
-.meta{display:flex;align-items:center;gap:6px;margin-top:5px;font-size:11.5px;
-  font-weight:500;color:var(--pale)}
-.meta .ouvert{color:var(--ambre)}
-.meta .gele{color:var(--gel)}
+.meta{display:flex;align-items:center;gap:6px;margin-top:6px}
+.pic{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;
+  color:var(--doux);background:var(--creme);border-radius:999px;padding:3px 8px}
+.pic svg.i{font-size:13px;stroke-width:1.7;color:var(--pale)}
+
 .qte{font-size:11.5px;font-weight:700;color:var(--blanc);background:var(--encre);
   border-radius:999px;padding:2px 8px;margin-left:8px;vertical-align:1.5px}
 .date-imp{font-family:var(--mono);font-size:12px;color:var(--pale);letter-spacing:.02em}
+
+.cat{font-size:18px;margin-right:9px;vertical-align:-.22em;stroke-width:1.5;opacity:.9}
+.c-poisson,.c-boisson{color:oklch(62% 0.115 236)}
+.c-viande,.c-charcuterie{color:oklch(58% 0.135 22)}
+.c-volaille,.c-oeuf,.c-feculent{color:oklch(64% 0.125 66)}
+.c-fromage,.c-laitage{color:oklch(62% 0.125 92)}
+.c-legume{color:oklch(58% 0.115 152)}
+.c-fruit,.c-dessert{color:oklch(62% 0.135 12)}
+.c-sauce,.c-plat,.c-divers{color:var(--pale)}
 
 /* ── panneau d'édition ── */
 .actions{display:grid;grid-template-rows:0fr;transition:grid-template-rows var(--moyen) var(--sortie)}
 .carte.ouvert .actions{grid-template-rows:1fr}
 .dedans{overflow:hidden;min-height:0}
-.pile{display:flex;flex-direction:column;gap:8px;padding:4px 14px 16px}
+.pile{display:flex;flex-direction:column;gap:8px;padding:6px 14px 18px}
+.pile .rang .btn{min-height:44px}
 .rang{display:flex;gap:7px}
 .rang input[type=text]{flex:1;min-width:0}
 .rang input[type=number]{width:66px;text-align:center}
@@ -158,6 +173,9 @@ h1 em{font-style:normal;color:var(--ambre)}
 .btn:active{transform:scale(.97)}
 .btn.danger{color:var(--rouge)}
 .btn.jaune{color:var(--ambre)}
+.source{margin:2px 2px 0;font-size:11.5px;line-height:1.5;color:var(--pale)}
+.source.inconnu{color:var(--ambre)}
+.outils #ranger{flex-basis:100%}
 .btn.gel{color:var(--gel)}
 .btn.choisi{background:var(--encre);color:var(--blanc)}
 .btn.choisi svg.i{color:var(--miel)}
@@ -170,7 +188,7 @@ input[type=date],input[type=text],input[type=email],input[type=password],input[t
 input[type=date],input[type=number]{font-family:var(--mono);font-size:13.5px}
 input:focus{border-color:var(--ligne-2);background:var(--blanc)}
 
-.outils{display:flex;gap:8px;margin:30px 0 12px}
+.outils{display:flex;flex-wrap:wrap;gap:8px;margin:30px 0 12px}
 .outils .btn{flex:1;background:transparent;border:1px dashed var(--ligne-2)}
 
 .vide{margin-top:56px;text-align:center;color:var(--pale);font-size:15px;line-height:1.7}
@@ -253,6 +271,21 @@ textarea:focus{border-color:var(--miel)}
     <g id="ic-balai"><path d="M4 20.5l6-6M10.5 8.5l5 5M9 10l5 5M13.2 5.8l5 5-3 3-5-5z"/></g>
     <g id="ic-fleche"><path d="M5 12h13M12.5 6.2L18.5 12l-6 5.8"/></g>
     <g id="ic-boite"><path d="M3.5 7.5L12 3l8.5 4.5v9L12 21l-8.5-4.5z"/><path d="M3.5 7.5L12 12l8.5-4.5M12 12v9"/></g>
+    <g id="ic-poisson"><path d="M3 12c3-4 7-6 11-6 3.5 0 6 1.6 7 3-1 1.4-3.5 3-7 3-4 0-8-2-11-6z" transform="translate(0,3)"/><path d="M18.5 9.5l2.5-2v9l-2.5-2M8 14h.01"/></g>
+    <g id="ic-viande"><path d="M6.5 17.5a5.5 5.5 0 0 1 0-11h6a5.5 5.5 0 0 1 0 11z"/><circle cx="8" cy="12" r="2"/></g>
+    <g id="ic-volaille"><path d="M15 4.5a5.5 5.5 0 0 1 0 11l-4.5 4.5-2-2 1-1.5-1.5-1.5-1.5 1-2-2 4.5-4.5a5.5 5.5 0 0 1 6-5z"/></g>
+    <g id="ic-charcuterie"><path d="M4.5 15.5c0-5 4-9 9-9 3 0 5.5 1 6 2.5.5 1.5-1 2.5-2.5 3.5s-2 3-3.5 4.5-3.5 2-5.5 1.5-3.5-1.5-3.5-3z"/><path d="M9 12h.01M12.5 10h.01M11 14.5h.01"/></g>
+    <g id="ic-fromage"><path d="M3.5 11.5L14 5.5l6.5 6v6.5h-17z"/><path d="M3.5 11.5h17M8 14.5h.01M13 15.5h.01M17 14h.01"/></g>
+    <g id="ic-laitage"><path d="M7.5 9.5h9l-.8 10.5a1 1 0 0 1-1 .9H9.3a1 1 0 0 1-1-.9z"/><path d="M8.5 5.5h7v4h-7zM10 3.2h4"/></g>
+    <g id="ic-legume"><path d="M12 20.5c-3.5-2-6-5.5-6-9.5 0-2.5 1.5-4.5 3-4.5 1 0 2 .8 3 .8s2-.8 3-.8c1.5 0 3 2 3 4.5 0 4-2.5 7.5-6 9.5z"/><path d="M12 7c0-2 1-3.5 3-4"/></g>
+    <g id="ic-fruit"><circle cx="12" cy="13.5" r="7"/><path d="M12 6.5c0-2 1.5-3.5 3.5-4M12 6.5c-.5-1.5-2-2-3.5-2"/></g>
+    <g id="ic-oeuf"><ellipse cx="12" cy="13.5" rx="6" ry="8"/></g>
+    <g id="ic-feculent"><path d="M4.5 9.5h15M4.5 9.5c0-3 3.4-5 7.5-5s7.5 2 7.5 5M6 9.5l1 9.5h10l1-9.5"/></g>
+    <g id="ic-sauce"><path d="M9 3.5h6v3.5l2 3v10.5H7V10l2-3z"/><path d="M7 13h10"/></g>
+    <g id="ic-dessert"><path d="M5.5 11.5h13l-1.5 9h-10z"/><path d="M6 11.5a6 6 0 0 1 12 0M12 5.5v-2"/></g>
+    <g id="ic-boisson"><path d="M6.5 4.5h11l-4 8v7h-3v-7z"/><path d="M8 8.5h8"/></g>
+    <g id="ic-plat"><ellipse cx="12" cy="15" rx="8.5" ry="3.5"/><path d="M3.5 15c0-4.7 3.8-8.5 8.5-8.5s8.5 3.8 8.5 8.5"/></g>
+    <g id="ic-divers"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l2.5 2.5"/></g>
     <g id="ic-cadenas"><rect x="4.5" y="10.5" width="15" height="10" rx="3"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></g>
   </defs>
 </svg>
@@ -303,6 +336,7 @@ textarea:focus{border-color:var(--miel)}
   <div id="liste"></div>
 
   <div class="outils">
+    <button class="btn" id="ranger"><svg class="i"><use href="#ic-boite"/></svg>Ranger le stock</button>
     <button class="btn" id="purger"><svg class="i"><use href="#ic-balai"/></svg>Retirer les dépassés</button>
     <button class="btn danger" id="vider"><svg class="i"><use href="#ic-poubelle"/></svg>Vider le stock</button>
   </div>
@@ -350,7 +384,115 @@ if(distant){
 const CACHE  = 'dlc-cache-v7';
 const ATTENTE = 'dlc-attente-v7';
 const FILTRE = 'dlc-filtre-v7';
-const JOURS_APRES_OUVERTURE = 3;
+const LONGUES = 'dlc-longues-v7';
+let longuesOuvertes = false;
+/* Durées de conservation après ouverture, en jours. Le premier mot-clé trouvé gagne,
+   donc les cas particuliers passent avant les catégories générales. */
+const M = 'Thermoguide, MAPAQ', A = 'ANSES', S = 'santé.fr';
+const CONSERVATION = [
+  /* ═══════════════════════════════════════════════════════════════════════
+     Durées de conservation après ouverture, au réfrigérateur.
+     Source principale : Thermoguide, MAPAQ (ministère de l'Agriculture,
+     des Pêcheries et de l'Alimentation du Québec). Bornes basses retenues.
+     Complément : ANSES et santé.fr pour ce que le Thermoguide ne couvre pas.
+     Un produit absent de ces listes ne reçoit AUCUNE durée.
+     ═══════════════════════════════════════════════════════════════════════ */
+  /* Cas précis, à traiter avant les règles générales */
+  [['saumon fumé','truite fumée','poisson fumé','haddock','labeyrie','fumé à froid'], 3, M + ' — poisson fumé à froid'],
+  [['confiture','gelée de','marmelade','miel','pâte à tartiner','beurre de cacahuète','beurre d\'arachide'], 365, M + ' — confitures et tartinades'],
+
+  /* 24 h */
+  [['mayonnaise maison','mousse au chocolat','sauce tartare','œuf cru','oeuf cru','crème pâtissière','sabayon','tiramisu maison'], 1, S + ' — préparation aux œufs crus'],
+  [['viande hachée','steak haché','haché','tartare','farce','chair à saucisse'], 1, M + ' — viande hachée'],
+  [['saucisse fraîche','chipolata','merguez','knacki','saucisse'], 1, M + ' — saucisses fraîches'],
+  [['poulet cru','volaille en morceaux','cuisse de poulet','aile de poulet','escalope','filet de poulet','filet de dinde','blanc de poulet','blanc de dinde'], 1, M + ' — volaille en morceaux'],
+  [['saumon','truite','maquereau frais','sardine fraîche','poisson gras'], 1, M + ' — poisson gras'],
+  [['crevette','gambas','moule','pétoncle','saint-jacques','palourde','langoustine'], 1, M + ' — fruits de mer'],
+  [['boîte de thon','boite de thon','conserve de poisson','conserve de viande'], 1, A + ' — reste de conserve de poisson ou viande'],
+  [['sandwich'], 1, M + ' — sandwichs'],
+
+  /* 2 jours */
+  [['cabillaud','colin','merlu','sole','tilapia','dorade','lieu noir','poisson maigre','poisson blanc'], 2, M + ' — poisson maigre'],
+  [['quiche','pâté à la viande','tourte','friand'], 2, M + ' — quiches et pâtés à la viande'],
+  [['gratin','lasagne','hachis','moussaka','mets en casserole','plat cuisiné','plat préparé'], 2, M + ' — mets en casserole'],
+  [['sous vide','sous-vide'], 2, M + ' — mets conditionnés sous vide'],
+  [['maïs en boîte','haricot en boîte','flageolet','pois chiche en boîte','conserve de légume','fruits au sirop','conserve'], 2, A + ' — reste de conserve de légumes'],
+
+  /* 3 jours */
+  [['crème fraîche','creme fraiche','crème légère','crème liquide','crème épaisse','crème semi','crème entière'], 3, M + ' — crème'],
+  [['lait demi','lait entier','lait écrémé','lait uht','lait de','lait '], 3, M + ' — lait'],
+  [['cottage','ricotta','fromage frais','faisselle','petit-suisse','petit suisse','fromage blanc','brousse','mozzarella','burrata','stracciatella','chèvre frais'], 3, M + ' — fromage frais'],
+  [['jambon blanc','jambon cuit','jambon de paris','jambon supérieur','rôti tranché','viande cuite tranchée'], 3, M + ' — jambon cuit en tranches'],
+  [['bœuf','boeuf','steak','rôti','côte de','côtelette','entrecôte','bavette','onglet','porc','agneau','veau','viande'], 3, M + ' — viandes, bornes basses'],
+  [['volaille cuite','poulet rôti','poulet cuit','dinde cuite'], 3, M + ' — volaille cuite sans sauce'],
+  [['soupe','potage','velouté','bouillon'], 3, M + ' — potages et soupes'],
+  [['pâtes cuites','pâtes alimentaires','sauce à la viande','sauce bolognaise','sauce tomate maison'], 3, M + ' — pâtes cuites et sauces à la viande'],
+  [['reste','restes','plat maison'], 3, S + ' — restes de repas maison'],
+  [['pâtes fraîches','pates fraiches','gnocchi','ravioli','tortellini','pizza fraîche','pâte feuilletée','pâte brisée','pâte à pizza','pâte à tarte'], 3, A + ' — aliment sensible entamé'],
+  [['houmous','guacamole','tzatziki','pesto','taboulé','piémontaise','carottes râpées','salade composée','surimi','tarama'], 3, A + ' — aliment sensible entamé'],
+  [['fraise','framboise','endive','fèves germées','germe de soja','pousse'], 3, M + ' — fruits rouges et pousses'],
+
+  /* 4 à 7 jours */
+  [['fines herbes','basilic','coriandre','persil','ciboulette','menthe'], 4, M + ' — fines herbes fraîches'],
+  [['asperge','rhubarbe','melon','cantaloup','pastèque'], 4, M + ' — légumes et fruits frais'],
+  [['brocoli','champignon','myrtille','bleuet','raisin','haricot vert','épinard'], 5, M + ' — légumes et fruits frais'],
+  [['riz cuit'], 5, M + ' — riz cuit'],
+  [['lentille cuite','pois chiche cuit','légumineuse'], 5, M + ' — légumineuses cuites'],
+  [['charcuterie','viande fumée','chorizo','coppa','pancetta','mortadelle','pâté','terrine','rillette','lardon','allumette','poitrine fumée','andouille','boudin'], 5, M + ' — viande fumée et charcuterie'],
+  [['tofu','seitan'], 6, M + ' — tofu'],
+  [['bacon'], 7, M + ' — bacon'],
+  [['fromage bleu','roquefort','gorgonzola','fourme','bleu d'], 7, M + ' — fromage bleu'],
+  [['laitue','salade','mâche','roquette','concombre','courgette','poivron','navet','radis','tomate','oignon vert','chou'], 7, M + ' — légumes frais'],
+  [['jambon cru','jambon sec','serrano','parme','bayonne','jambon entier'], 7, M + ' — jambon cuit entier'],
+  [['œuf dur','oeuf dur','blanc d','jaune d'], 7, M + ' — œufs durs'],
+  [['pain','brioche','baguette','muffin','biscuit maison','viennoiserie','galette','wrap','tortilla'], 7, M + ' — produits de boulangerie'],
+
+  /* 2 semaines et plus */
+  [['yaourt','yogourt','skyr'], 14, M + ' — yogourt'],
+  [['saucisson','salami','fuet','rosette','chorizo sec'], 14, M + ' — saucissons secs entiers'],
+  [['céleri','poireau','betterave','chou-fleur','courge'], 14, M + ' — légumes frais'],
+  [['beurre','margarine'], 21, M + ' — beurre'],
+  [['camembert','brie','coulommiers','reblochon','munster','maroilles','époisses','saint-marcellin','pâte molle'], 21, M + ' — fromage à pâte molle'],
+  [['fromage fondu','vache qui rit','kiri','babybel','fromage à tartiner'], 21, M + ' — fromage fondu à tartiner'],
+  [['huile de première pression','huile vierge','huile d\'olive'], 21, M + ' — huile végétale de première pression'],
+  [['carotte'], 30, M + ' — carottes'],
+  [['œuf','oeuf'], 30, M + ' — œufs frais en coquille'],
+  [['comté','comte','emmental','gruyère','beaufort','cantal','tomme','morbier','raclette','gouda','edam','mimolette','cheddar','parmesan','parmigiano','grana','manchego','pecorino','pâte ferme','pâte pressée','pâte dure','chèvre sec','fromage râpé','fromage rape'], 35, M + ' — fromage à pâte ferme'],
+  [['mayonnaise'], 60, M + ' — mayonnaise industrielle'],
+  [['moutarde forte','moutarde de dijon'], 270, M + ' — moutarde forte'],
+  [['ketchup','marinade','cornichon','pickles','moutarde','olive','sirop d','vinaigre'], 365, M + ' — condiments et tartinades']
+];
+
+/* Renvoie { jours, source } si une source couvre le produit, sinon null. */
+function joursOuvert(nom){
+  const n = nom.toLowerCase();
+  for(const [mots, j, src] of CONSERVATION) if(mots.some(m => n.includes(m))) return { jours:j, source:src };
+  return null;
+}
+
+/* Famille visuelle du produit : sert uniquement à l'icône affichée. */
+const CATEGORIES = [
+  ['poisson', ['saumon','truite','cabillaud','colin','merlu','dorade','lieu noir','thon','sardine','maquereau','haddock','poisson','crevette','gambas','moule','huître','saint-jacques','crabe','langoustine','bulot','surimi','tarama','sushi','anchois']],
+  ['charcuterie', ['jambon','chorizo','saucisson','salami','coppa','pancetta','mortadelle','pâté','terrine','rillette','lardon','allumette','bacon','poitrine fumée','andouille','boudin','fuet','rosette','serrano','parme']],
+  ['volaille', ['poulet','dinde','canard','pintade','volaille','escalope','nugget','cordon bleu']],
+  ['viande', ['bœuf','boeuf','porc','agneau','veau','steak','haché','rôti','côte de','côtelette','entrecôte','merguez','chipolata','saucisse','knacki','viande','tartare','brochette','burger']],
+  ['fromage', ['fromage','comté','comte','emmental','gruyère','beaufort','cantal','tomme','morbier','raclette','gouda','edam','mimolette','cheddar','parmesan','parmigiano','grana','camembert','brie','coulommiers','reblochon','munster','maroilles','époisses','chèvre','chevre','mozzarella','burrata','stracciatella','ricotta','feta','brousse','mascarpone','bleu','roquefort','gorgonzola','fourme','vache qui rit','kiri','babybel','saint-nectaire','manchego','pecorino']],
+  ['laitage', ['yaourt','skyr','faisselle','petit-suisse','petit suisse','fromage blanc','crème','creme','lait','beurre','chantilly','cottage','laitage']],
+  ['oeuf', ['œuf','oeuf']],
+  ['boisson', ['jus','smoothie','nectar','soda','limonade','bière','vin','eau','boisson','café','thé','sirop de']],
+  ['legume', ['salade','mâche','roquette','épinard','brocoli','chou','carotte','courgette','poivron','tomate','concombre','champignon','haricot','poireau','aubergine','céleri','radis','betterave','fenouil','navet','endive','oignon','ail','pomme de terre','légume','crudité','ratatouille','poêlée','avocat','maïs','mais']],
+  ['fruit', ['pomme','poire','banane','orange','citron','fraise','framboise','myrtille','raisin','melon','pastèque','pêche','abricot','kiwi','ananas','mangue','clémentine','cerise','prune','fruit','compote']],
+  ['feculent', ['pain','brioche','baguette','pâte','pate','gnocchi','ravioli','tortellini','riz','semoule','quinoa','lentille','pois chiche','galette','wrap','tortilla','pizza','biscotte','céréales','cereales','flocon']],
+  ['sauce', ['sauce','pesto','tapenade','houmous','guacamole','moutarde','mayonnaise','ketchup','harissa','curry','sriracha','vinaigrette','coulis','soja','vinaigre','huile','olive','cornichon','câpre','condiment','épice']],
+  ['dessert', ['gâteau','gateau','tarte','éclair','tiramisu','mousse','flan','glace','dessert','chocolat','confiture','miel','sirop','pâte à tartiner','nutella','biscuit','cookie','crème dessert','viennoiserie','croissant']],
+  ['plat', ['lasagne','hachis','gratin','quiche','sandwich','taboulé','piémontaise','plat','soupe','velouté','bouillon','tofu','seitan','boulettes végétales','samoussa','nem']]
+];
+function categorie(nom){
+  const n = nom.toLowerCase();
+  for(const [cle, mots] of CATEGORIES) if(mots.some(m => n.includes(m))) return cle;
+  return 'divers';
+}
+
 const MOIS_AU_CONGELATEUR = 6;
 
 let items = [], enAttente = [], attente = [], foyer = null, canal = null;
@@ -375,9 +517,22 @@ const prochaine = d => { if(d < jour0()) d.setFullYear(d.getFullYear()+1); retur
 const VIDES = /^(le|la|les|l['’]|du|de|des|un|une|d['’]|au|aux|et|puis|alors|ensuite|pour|c['’]est|ca|ça|expire|expires?|p[ée]rim[ée]s?|jusqu['’]au|jusqu['’]a|jusqu['’]à|date|dlc)$/i;
 const NOMBRES = { un:1, une:1, deux:2, trois:3, quatre:4, cinq:5, six:6, sept:7, huit:8, neuf:9, dix:10, onze:11, douze:12 };
 const LIEUX = {
-  'congélateur':['surgel','congel','glace','glaçon','pané','frites'],
-  'frigo':['yaourt','lait','crème','creme','fromage','jambon','beurre','poulet','viande','steak','saucisse','poisson','saumon','œuf','oeuf','salade','charcuterie','escalope','skyr','fraîche','fraiche','dessert'],
-  'placard':['pâtes','pates','riz','conserve','farine','sucre','biscuit','céréales','cereales','huile','café','cafe','chips','gâteau','gateau']
+  'congélateur':['surgel','congel','glace','glaçon','glacon','frites','poêlée surgelée','nugget','cordon bleu','pizza surgelée','bâtonnet de poisson','poisson pané','crème glacée','sorbet','esquimau','petits pois surgelés','épinards surgelés','pain surgelé'],
+  'frigo':[
+    /* laitages et œufs */ 'yaourt','skyr','faisselle','petit-suisse','petit suisse','fromage blanc','cottage','lait','crème','creme','beurre','margarine','chantilly','œuf','oeuf','laitage','kéfir','lassi',
+    /* fromages */ 'fromage','comté','comte','emmental','gruyère','gruyere','beaufort','abondance','cantal','salers','laguiole','tomme','morbier','raclette','gouda','edam','mimolette','cheddar','parmesan','parmigiano','grana','camembert','brie','coulommiers','reblochon','munster','maroilles','époisses','epoisses','mont d','saint-nectaire','saint nectaire','saint-marcellin','chèvre','chevre','mozzarella','burrata','stracciatella','ricotta','feta','brousse','mascarpone','bleu','roquefort','gorgonzola','fourme','manchego','pecorino','vache qui rit','kiri','babybel','apéricube','boursin','carré frais',
+    /* viandes, volailles, charcuteries */ 'viande','bœuf','boeuf','porc','agneau','veau','steak','haché','rôti','côte de','côtelette','entrecôte','bavette','onglet','poulet','dinde','canard','pintade','volaille','escalope','aiguillette','cuisse','magret','jambon','chorizo','saucisson','salami','coppa','pancetta','mortadelle','pâté','terrine','rillette','lardon','allumette','bacon','poitrine fumée','andouille','boudin','fuet','rosette','serrano','parme','merguez','chipolata','saucisse','knacki','brochette','farce','tartare',
+    /* poissons et fruits de mer */ 'poisson','saumon','truite','cabillaud','colin','merlu','dorade','lieu noir','haddock','anchois','crevette','gambas','moule','huître','huitre','saint-jacques','crabe','langoustine','bulot','surimi','tarama','labeyrie','poke','sushi','sashimi',
+    /* traiteur, pâtes fraîches, végétal */ 'gnocchi','pâtes fraîches','pates fraiches','ravioli','tortellini','pâte feuilletée','pâte brisée','pâte sablée','pâte à pizza','pâte à tarte','galette','wrap','tortilla','lasagne','hachis','gratin','quiche','pizza fraîche','sandwich','salade composée','taboulé','piémontaise','carottes râpées','soupe fraîche','velouté','tofu','seitan','boulettes végétales','steak végétal','houmous','guacamole','tzatziki','pesto','tarte fraîche','samoussa','nem',
+    /* frais divers */ 'salade','mâche','mache','roquette','jeunes pousses','basilic','coriandre','persil','ciboulette','levure fraîche','jus frais','jus pressé','pâte à cookie',
+    /* légumes et fruits frais */ 'brocoli','chou','carotte','courgette','poivron','tomate','concombre','champignon','haricot vert','poireau','épinard','aubergine','céleri','radis','betterave','fenouil','navet','endive','courge','potiron','fraise','framboise','myrtille','cerise','raisin','melon','pastèque','pêche','abricot','prune','kiwi','clémentine','mangue','ananas','avocat','crudité'
+  ],
+  'placard':[
+    /* conserves et bocaux */ 'conserve','boîte de','boite de','thon','sardine','maquereau','maïs','mais','haricot blanc','haricot rouge','flageolet','pois chiche','lentille','ravioli en boîte','cassoulet','bocal','olive','cornichon','pickles','câpre','capre','antipasti','poivron grillé','concentré de tomate','sauce tomate','coulis','passata',
+    /* épicerie sèche */ 'pâtes','pates','spaghetti','penne','tagliatelle','coquillette','riz','semoule','quinoa','boulgour','polenta','farine','sucre','levure','maïzena','chapelure','céréales','cereales','flocon','muesli','granola','biscotte','pain de mie','crouton',
+    /* condiments et sauces */ 'huile','vinaigre','moutarde','mayonnaise','ketchup','sauce soja','nuoc','sauce barbecue','harissa','curry','sriracha','tabasco','wasabi','raifort','sel','poivre','épice','herbes de provence','bouillon cube','fond de veau','arôme','extrait de vanille',
+    /* sucré et boissons stables */ 'confiture','gelée','miel','sirop','pâte à tartiner','nutella','chocolat','biscuit','cookie','gâteau','gateau','bonbon','compote','lait concentré','café','cafe','thé','tisane','chips','apéritif','cacahuète','amande','noix','raisin sec','gaufre','madeleine'
+  ]
 };
 const devineLieu = nom => {
   const n = nom.toLowerCase();
@@ -418,12 +573,24 @@ function extraireDate(txt){
       return { date: d, brut: m[0] }; } }
   return null;
 }
+const LIAISONS = /^(?:et|puis|ensuite|alors|aussi|donc|apr[èe]s|j['’]ai|jai|il\s+y\s+a|il\s+me\s+reste|on\s+a|avec|plus|des|les|le|la|du|de|un\s+peu\s+de)\s+/i;
 function extraireQuantite(txt){
-  const m = txt.match(/^\s*(\d{1,2}|un|une|deux|trois|quatre|cinq|six|sept|huit|neuf|dix|onze|douze)\s+(?=\S)/i);
-  if(!m) return { qte:1, reste:txt };
+  let t = txt.trim(), coupe = true;
+  while(coupe){                                   // « et j'ai trois mozzarella » → « trois mozzarella »
+    coupe = false;
+    const l = t.match(LIAISONS);
+    if(l && !/^(?:un|une)\s/i.test(l[0])){ t = t.slice(l[0].length); coupe = true; }
+  }
+  let m = t.match(/^(\d{1,2}|un|une|deux|trois|quatre|cinq|six|sept|huit|neuf|dix|onze|douze)\s+(?=\S)/i);
+  if(!m) m = t.match(/^(?:x\s*)(\d{1,2})\s+(?=\S)/i);        // « x3 mozzarella »
+  if(!m){
+    const fin = t.match(/\s+x\s*(\d{1,2})$/i);                 // « mozzarella x3 »
+    if(fin){ const v = +fin[1]; if(v >= 1 && v <= 99) return { qte:v, reste: t.slice(0, fin.index) }; }
+    return { qte:1, reste:t };
+  }
   const v = /^\d+$/.test(m[1]) ? +m[1] : NOMBRES[m[1].toLowerCase()];
-  if(!v || v < 1 || v > 99) return { qte:1, reste:txt };
-  return { qte:v, reste: txt.slice(m[0].length) };
+  if(!v || v < 1 || v > 99) return { qte:1, reste:t };
+  return { qte:v, reste: t.slice(m[0].length) };
 }
 function nettoyer(nom){
   const mots = nom.replace(/[.;:!?]+/g,' ').split(/\s+/).filter(Boolean);
@@ -626,10 +793,22 @@ function jeter(it){
 /* Entamé : un produit ouvert ne tient plus que quelques jours. */
 function entamer(it){
   const avant = { dlc: it.dlc, entame: !!it.entame };
-  const d = jour0(); d.setDate(d.getDate() + JOURS_APRES_OUVERTURE);
+  const info = joursOuvert(it.nom);
+  if(!info){                                     // aucune source : on ne touche pas à la date
+    modifier(it.id, { entame:true });
+    proposerAnnulation(it.nom + ' : aucune durée fiable connue, voir l\u2019étiquette',
+      () => modifier(it.id, avant));
+    return;
+  }
+  const d = jour0(); d.setDate(d.getDate() + info.jours);
   const neuve = iso(d);
-  modifier(it.id, { dlc: neuve < it.dlc ? neuve : it.dlc, entame:true });
-  proposerAnnulation(`${it.nom} marqué entamé`, () => modifier(it.id, avant));
+  const retenue = neuve < it.dlc ? neuve : it.dlc;
+  modifier(it.id, { dlc: retenue, entame:true });
+  proposerAnnulation(
+    retenue === neuve
+      ? it.nom + ' : ' + info.jours + ' jour' + (info.jours>1?'s':'') + ' — ' + info.source
+      : it.nom + ' entamé : la date imprimée reste la plus proche',
+    () => modifier(it.id, avant));
 }
 
 /* Congelé : la DLC imprimée ne veut plus rien dire, on repart sur six mois. */
@@ -685,14 +864,34 @@ function rendre(){
   tx.appendChild(document.createTextNode(total + ' article' + (total>1?'s':'') + ' en stock'));
   resume.append(nb, tx);
 
-  [['Dépassé', j => j < 0], ['Sous 48 heures', j => j >= 0 && j <= 2],
-   ['Cette semaine', j => j > 2 && j <= 7], ['Plus tard', j => j > 7]].forEach(([titre, test]) => {
+  [['Dépassé', j => j < 0, false],
+   ['Sous 48 heures', j => j >= 0 && j <= 2, false],
+   ['Cette semaine', j => j > 2 && j <= 7, false],
+   ['Ce mois-ci', j => j > 7 && j <= 90, false],
+   ['Se garde longtemps', j => j > 90, true]].forEach(([titre, test, pliable]) => {
     const lot = vus.filter(i => test(restant(i.dlc)));
     if(!lot.length) return;
     const bloc = document.createElement('div');
     bloc.className = 'groupe';
-    bloc.innerHTML = `<h2>${titre} <b>${lot.length}</b></h2>`;
-    lot.forEach(it => bloc.appendChild(carte(it)));
+    const h = document.createElement('h2');
+    h.textContent = titre + ' ';
+    const compteur = document.createElement('b');
+    compteur.textContent = lot.length;
+    h.appendChild(compteur);
+    if(pliable){
+      h.classList.add('pliable');
+      const fleche = document.createElement('span');
+      fleche.className = 'fleche';
+      fleche.textContent = longuesOuvertes ? '−' : '+';
+      h.appendChild(fleche);
+      h.onclick = () => {
+        longuesOuvertes = !longuesOuvertes;
+        try{ localStorage.setItem(LONGUES, longuesOuvertes ? '1' : '0'); }catch(e){}
+        rendre();
+      };
+    }
+    bloc.appendChild(h);
+    if(!pliable || longuesOuvertes) lot.forEach(it => bloc.appendChild(carte(it)));
     liste.appendChild(bloc);
   });
 }
@@ -708,23 +907,27 @@ function carte(it){
       <div class="date-imp">${d}.${m}</div>
     </div>
     <div class="actions"><div class="dedans"><div class="pile">
-      <div class="etiq">Nom, quantité et date</div>
+      <div class="etiq">Produit</div>
       <div class="rang">
-        <input type="text" maxlength="80">
-        <input type="number" min="1" max="99" value="${q}">
+        <input type="text" maxlength="80" aria-label="Nom du produit">
+        <input type="number" min="1" max="99" value="${q}" aria-label="Quantité">
       </div>
-      <div class="rang"><input type="date" value="${it.dlc}"></div>
+      <div class="rang"><input type="date" value="${it.dlc}" aria-label="Date de péremption"></div>
+
       <div class="etiq">Emplacement</div>
       <div class="rang lieux">
         <button class="btn" data-l="frigo"><svg class="i"><use href="#ic-frigo"/></svg>Frigo</button>
         <button class="btn" data-l="congélateur"><svg class="i"><use href="#ic-gel"/></svg>Congélo</button>
         <button class="btn" data-l="placard"><svg class="i"><use href="#ic-placard"/></svg>Placard</button>
       </div>
-      <div class="etiq">Ce qui change la date</div>
+
+      <div class="etiq">Ouvert ou congelé</div>
       <div class="rang">
         <button class="btn jaune" data-a="ouvert"><svg class="i"><use href="#ic-goutte"/></svg>Entamé</button>
         <button class="btn gel" data-a="gele"><svg class="i"><use href="#ic-gel"/></svg>Congelé</button>
       </div>
+      <p class="source"></p>
+
       <div class="etiq">Sortie du stock</div>
       <div class="rang">
         <button class="btn" data-a="ok"><svg class="i"><use href="#ic-moins"/></svg>Consommé</button>
@@ -733,24 +936,41 @@ function carte(it){
     </div></div></div>`;
 
   const nom = el.querySelector('.nom');
-  nom.textContent = it.nom;                       // textContent : le nom dicté ne peut pas injecter de HTML
+  const cat = categorie(it.nom);
+  const ico = document.createElementNS('http://www.w3.org/2000/svg','svg');
+  ico.setAttribute('class', 'i cat c-' + cat);
+  const use = document.createElementNS('http://www.w3.org/2000/svg','use');
+  use.setAttribute('href', '#ic-' + cat);
+  ico.appendChild(use);
+  nom.appendChild(ico);
+  nom.appendChild(document.createTextNode(it.nom));                       // textContent : le nom dicté ne peut pas injecter de HTML
   if(q > 1){ const b = document.createElement('span'); b.className = 'qte'; b.textContent = '\u00d7' + q; nom.appendChild(b); }
 
-  const marques = [];
-  if(it.lieu)   marques.push(['lieu', it.lieu]);
-  if(it.entame) marques.push(['ouvert', 'entamé']);
-  if(it.congele_le) marques.push(['gele', 'congelé le ' + it.congele_le.slice(8,10) + '.' + it.congele_le.slice(5,7)]);
-  if(marques.length){
-    const meta = document.createElement('div'); meta.className = 'meta';
-    marques.forEach(([type, texte], i) => {
-      if(i){ const p = document.createElement('span'); p.textContent = '·'; meta.appendChild(p); }
-      const s = document.createElement('span');
-      if(type !== 'lieu') s.className = type;
-      s.textContent = texte;
-      meta.appendChild(s);
-    });
-    nom.appendChild(meta);
+  const meta = document.createElement('div');
+  meta.className = 'meta';
+  const pic = (id, titre, texte) => {
+    const w = document.createElement('span');
+    w.className = 'pic';
+    w.title = titre;
+    const g = document.createElementNS('http://www.w3.org/2000/svg','svg');
+    g.setAttribute('class','i');
+    const u = document.createElementNS('http://www.w3.org/2000/svg','use');
+    u.setAttribute('href', '#' + id);
+    g.appendChild(u);
+    w.appendChild(g);
+    if(texte) w.appendChild(document.createTextNode(texte));
+    return w;
+  };
+  if(it.congele_le){
+    meta.appendChild(pic('ic-gel', 'Congelé le ' + it.congele_le, it.congele_le.slice(8,10) + '.' + it.congele_le.slice(5,7)));
+  }else if(it.lieu){
+    meta.appendChild(pic(it.lieu === 'frigo' ? 'ic-frigo' : it.lieu === 'congélateur' ? 'ic-gel' : 'ic-placard', it.lieu));
   }
+  if(it.entame){
+    const src = joursOuvert(it.nom);
+    meta.appendChild(pic('ic-goutte', src ? 'Entamé · ' + src.jours + ' jours · ' + src.source : 'Entamé · aucune durée fiable connue'));
+  }
+  if(meta.childElementCount) nom.appendChild(meta);
 
   const champNom = el.querySelector('input[type=text]');
   champNom.value = it.nom;
@@ -766,6 +986,16 @@ function carte(it){
     if(b.dataset.l === it.lieu) b.classList.add('choisi');
     b.onclick = () => modifier(it.id, { lieu: it.lieu === b.dataset.l ? '' : b.dataset.l });
   });
+  const info = joursOuvert(it.nom);
+  const ligneSrc = el.querySelector('.source');
+  if(info){
+    const [org, detail] = info.source.split(' — ');
+    ligneSrc.textContent = 'Une fois entamé : ' + info.jours + ' jour' + (info.jours > 1 ? 's' : '')
+      + (detail ? ' (' + detail + ')' : '') + ' · source : ' + org;
+  }else{
+    ligneSrc.textContent = "Aucune durée fiable connue pour ce produit. La date ne sera pas modifiée : reportez-vous à l'étiquette.";
+    ligneSrc.classList.add('inconnu');
+  }
   el.querySelector('[data-a="ouvert"]').onclick = () => entamer(it);
   el.querySelector('[data-a="gele"]').onclick   = () => congeler(it);
   el.querySelector('[data-a="ok"]').onclick     = () => consommer(it);
@@ -774,6 +1004,16 @@ function carte(it){
 }
 
 /* ══════ nettoyage du stock ══════ */
+$('ranger').onclick = () => {
+  const sans = items.filter(i => !i.lieu);
+  let n = 0;
+  sans.forEach(i => { const l = devineLieu(i.nom); if(l){ modifier(i.id, { lieu:l }); n++; } });
+  $('note').style.color = '';
+  $('note').textContent = n
+    ? n + ' produit' + (n>1 ? 's rangés' : ' rangé') + ' automatiquement.'
+    : 'Rien à ranger : ' + (sans.length ? sans.length + ' produit(s) non reconnu(s), à classer à la main.' : 'tout a déjà un emplacement.');
+};
+
 $('purger').onclick = () => {
   const vieux = items.filter(i => restant(i.dlc) < 0);
   retirerPlusieurs(vieux, vieux.length + ' produit' + (vieux.length > 1 ? 's dépassés retirés' : ' dépassé retiré'));
@@ -811,15 +1051,44 @@ function ouvrirPanneau(sansDate){
   enAttente.forEach((o, i) => {
     const r = document.createElement('div');
     r.className = 'relu';
-    const n = document.createElement('input'); n.type = 'text'; n.maxLength = 80; n.value = o.nom;
-    const q = document.createElement('input'); q.type = 'number'; q.min = 1; q.max = 99; q.value = o.quantite;
-    const d = document.createElement('input'); d.type = 'date'; d.value = o.dlc;
-    const x = document.createElement('button'); x.className = 'btn danger'; x.textContent = '✕';
+
+    const n = document.createElement('input');
+    n.type = 'text'; n.maxLength = 80; n.value = o.nom;
+    n.className = 'relu-nom'; n.setAttribute('aria-label', 'Nom du produit');
+
+    const bas = document.createElement('div');
+    bas.className = 'relu-bas';
+
+    const cq = document.createElement('label');
+    cq.className = 'champ';
+    const lq = document.createElement('span'); lq.textContent = 'Quantité';
+    const q = document.createElement('input');
+    q.type = 'number'; q.min = 1; q.max = 99; q.value = o.quantite;
+    cq.append(lq, q);
+
+    const cd = document.createElement('label');
+    cd.className = 'champ grand';
+    const ld = document.createElement('span'); ld.textContent = 'À consommer avant';
+    const d2 = document.createElement('input');
+    d2.type = 'date'; d2.value = o.dlc;
+    cd.append(ld, d2);
+
+    const x = document.createElement('button');
+    x.className = 'btn danger retirer';
+    x.setAttribute('aria-label', 'Retirer cette ligne');
+    const gx = document.createElementNS('http://www.w3.org/2000/svg','svg');
+    gx.setAttribute('class','i');
+    const ux = document.createElementNS('http://www.w3.org/2000/svg','use');
+    ux.setAttribute('href','#ic-poubelle');
+    gx.appendChild(ux); x.appendChild(gx);
+
     n.oninput  = e => o.nom = e.target.value;
     q.onchange = e => o.quantite = Math.min(99, Math.max(1, parseInt(e.target.value,10) || 1));
-    d.onchange = e => o.dlc = e.target.value;
+    d2.onchange = e => o.dlc = e.target.value;
     x.onclick  = () => { enAttente.splice(i,1); enAttente.length ? ouvrirPanneau(sansDate) : fermerPanneau(); };
-    r.append(n, q, d, x);
+
+    bas.append(cq, cd, x);
+    r.append(n, bas);
     zone.appendChild(r);
   });
   $('voile').classList.add('on');
@@ -861,7 +1130,7 @@ async function demarrer(){
   majEntete();
   items = lireJSON(CACHE);
   attente = lireJSON(ATTENTE);
-  try{ filtre = localStorage.getItem(FILTRE) || 'tous'; }catch(e){}
+  try{ filtre = localStorage.getItem(FILTRE) || 'tous'; longuesOuvertes = localStorage.getItem(LONGUES) === '1'; }catch(e){}
   document.querySelectorAll('.puce').forEach(p => p.classList.toggle('actif', p.dataset.lieu === filtre));
   if(!distant){ montrerApp(); majFil(); rendre(); return; }
   const { data:{ session } } = await sb.auth.getSession();
