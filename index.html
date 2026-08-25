@@ -103,6 +103,21 @@ h1 em{font-style:normal;color:var(--ambre)}
   color:oklch(30% 0.11 70);margin-bottom:2px}
 .verdict.calme .txt b{color:var(--encre)}
 
+/* ── recherche ── */
+.chercher{display:flex;align-items:center;gap:9px;margin-top:16px;background:var(--blanc);
+  border-radius:999px;padding:0 14px;box-shadow:var(--ombre);border:1px solid transparent;
+  transition:border-color var(--court)}
+.chercher:focus-within{border-color:var(--miel)}
+.chercher svg.i{font-size:17px;color:var(--pale);stroke-width:2;flex-shrink:0}
+.chercher input{flex:1;min-width:0;border:none;background:none;padding:13px 0;font-size:15px;
+  font-family:var(--sans);color:var(--encre)}
+.chercher input:focus{outline:none;background:none;border:none}
+.chercher input::placeholder{color:var(--pale)}
+.chercher input::-webkit-search-cancel-button{display:none}
+.chercher button{display:none;background:none;border:none;color:var(--pale);font-size:15px;
+  cursor:pointer;padding:8px 2px;line-height:1}
+.chercher.pleine button{display:block}
+
 /* ── filtres ── */
 .filtres{display:flex;gap:7px;margin-top:20px;overflow-x:auto;scrollbar-width:none}
 .filtres::-webkit-scrollbar{display:none}
@@ -331,6 +346,7 @@ textarea:focus{border-color:var(--miel)}
     <g id="fa-boisson"><path d="M4.6 2.6h14.8l-5.4 10.2V19.6h3.6V22H6.4v-2.4H10v-6.8z"/></g>
     <g id="fa-divers"><circle cx="12" cy="12" r="6.2"/></g>
     <g id="ic-chevron"><path d="M9 5l7 7-7 7"/></g>
+    <g id="ic-loupe"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5.5 5.5"/></g>
     <g id="ic-cadenas"><rect x="4.5" y="10.5" width="15" height="10" rx="3"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></g>
   </defs>
 </svg>
@@ -370,6 +386,12 @@ textarea:focus{border-color:var(--miel)}
   </div>
 
   <div class="verdict arrive" id="verdict" style="animation-delay:110ms"></div>
+
+  <label class="chercher arrive" style="animation-delay:150ms">
+    <svg class="i"><use href="#ic-loupe"/></svg>
+    <input type="search" id="recherche" placeholder="Chercher un produit" autocomplete="off" enterkeyhint="search">
+    <button type="button" id="videRecherche" aria-label="Effacer la recherche">✕</button>
+  </label>
 
   <div class="filtres arrive" id="filtres" style="animation-delay:170ms">
     <button class="puce actif" data-lieu="tous"><svg class="i"><use href="#ic-tous"/></svg>Tous</button>
@@ -432,7 +454,7 @@ if(distant){
   sb = createClient(CONFIG.url, CONFIG.anonKey, { auth:{ persistSession:true, autoRefreshToken:true } });
 }
 
-const VERSION = 'v12 — 25 août 18h';
+const VERSION = 'v13 — 25 août 19h';
 const CACHE  = 'dlc-cache-v7';
 const ATTENTE = 'dlc-attente-v7';
 const FILTRE = 'dlc-filtre-v7';
@@ -586,7 +608,7 @@ function joursOuvert(nom){
 const MOIS_AU_CONGELATEUR = 6;
 
 let items = [], enAttente = [], attente = [], foyer = null, canal = null;
-let filtre = 'tous', annulation = null, minuteur = null, ouverteId = null;
+let filtre = 'tous', annulation = null, minuteur = null, ouverteId = null, cherche = '';
 const $ = id => document.getElementById(id);
 
 /* ══════ dates ══════ */
@@ -994,6 +1016,19 @@ const etatJ = j => j < 0 ? 'perime' : j <= 2 ? 'urgent' : j <= 7 ? 'semaine' : '
 const compteur = j => j < 0 ? 'J+' + (-j) : j === 0 ? "AUJ." : 'J-' + j;
 const legende  = j => j < 0 ? 'dépassé' : j === 0 ? "à manger" : j === 1 ? 'demain' : 'jours';
 
+$('recherche').oninput = e => {
+  cherche = e.target.value.trim();
+  $('recherche').parentElement.classList.toggle('pleine', !!cherche);
+  rendre();
+};
+$('videRecherche').onclick = () => {
+  cherche = '';
+  $('recherche').value = '';
+  $('recherche').parentElement.classList.remove('pleine');
+  rendre();
+  $('recherche').focus();
+};
+
 $('filtres').onclick = e => {
   const b = e.target.closest('.puce'); if(!b) return;
   filtre = b.dataset.lieu;
@@ -1006,21 +1041,35 @@ function rendre(){
   const liste = $('liste'), resume = $('verdict');
   liste.innerHTML = '';
   items.sort((a,b) => a.dlc.localeCompare(b.dlc) || a.nom.localeCompare(b.nom));
-  const vus = filtre === 'tous' ? items : items.filter(i => i.lieu === filtre);
+  const sansAccent = t => t.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+  let vus = filtre === 'tous' ? items : items.filter(i => i.lieu === filtre);
+  if(cherche){
+    const q = sansAccent(cherche);
+    vus = vus.filter(i => sansAccent(i.nom).includes(q));
+  }
 
   if(!vus.length){
     resume.innerHTML = '';
-    liste.innerHTML = filtre === 'tous'
-      ? `<div class="vide"><svg class="i"><use href="#ic-boite"/></svg>Aucun produit en stock.<br>Déballez les courses et dictez au fur et à mesure.
-         <code>« 3 fromages frais 12 septembre »</code></div>`
-      : `<div class="vide"><svg class="i"><use href="#ic-boite"/></svg>Rien ici pour le moment.</div>`;
+    if(cherche){
+      const v = document.createElement('div');
+      v.className = 'vide';
+      v.innerHTML = '<svg class="i"><use href="#ic-loupe"/></svg>';
+      v.appendChild(document.createTextNode('Aucun produit ne correspond à cette recherche.'));
+      liste.appendChild(v);
+    }else{
+      liste.innerHTML = filtre === 'tous'
+        ? `<div class="vide"><svg class="i"><use href="#ic-boite"/></svg>Aucun produit en stock.<br>Déballez les courses et dictez au fur et à mesure.
+           <code>« 3 fromages frais 12 septembre »</code></div>`
+        : `<div class="vide"><svg class="i"><use href="#ic-boite"/></svg>Rien ici pour le moment.</div>`;
+    }
     return;
   }
-  const perimes = vus.filter(i => restant(i.dlc) < 0).length;
-  const urgents = vus.filter(i => { const j = restant(i.dlc); return j >= 0 && j <= 2; }).length;
-  const total   = vus.length;
+  const pourVerdict = filtre === 'tous' ? items : items.filter(i => i.lieu === filtre);
+  const perimes = pourVerdict.filter(i => restant(i.dlc) < 0).length;
+  const urgents = pourVerdict.filter(i => { const j = restant(i.dlc); return j >= 0 && j <= 2; }).length;
+  const total   = pourVerdict.length;
 
-  const entames = vus.filter(i => i.entame).length;
+  const entames = pourVerdict.filter(i => i.entame).length;
   let ton = 'calme', chiffre = '0', titre = 'Rien d’urgent', detail = '';
   if(perimes){
     ton = 'alerte';
@@ -1161,8 +1210,7 @@ function carte(it){
   }
   if(it.entame){
     let txt = 'Entamé';
-    if(q > 1) txt += ' ' + (it.entame_nb || 1) + '/' + q;
-    if(it.entame_le) txt += ' · ' + it.entame_le.slice(8,10) + '.' + it.entame_le.slice(5,7);
+    if(it.entame_le) txt += ' le ' + it.entame_le.slice(8,10) + '.' + it.entame_le.slice(5,7);
     bout(txt, 'ouvert');
   }else if(restant(it.dlc) <= 2 && !it.congele_le){
     const c = congelable(it.nom);
