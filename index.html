@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="utf-8">
@@ -61,11 +61,14 @@ h1{font-size:var(--titre);font-weight:700;margin:7px 0 0;letter-spacing:-.035em;
 h1 em{font-style:normal;color:var(--ambre)}
 .jour{background:var(--blanc);border-radius:16px;padding:10px 13px;text-align:center;
   box-shadow:var(--ombre);flex-shrink:0}
-.jour b{display:block;font-family:var(--mono);font-size:17px;font-weight:700;letter-spacing:-.02em}
-.jour span{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--pale);font-family:var(--mono)}
+.jour b{display:block;font-family:var(--sans);font-size:24px;font-weight:700;letter-spacing:-.04em;line-height:1}
+.jour span{display:block;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--pale);font-family:var(--mono);margin-top:3px}
 
 .fil{display:flex;align-items:center;gap:8px;margin-top:18px;font-family:var(--mono);
-  font-size:var(--micro);letter-spacing:.1em;text-transform:uppercase;color:var(--pale)}
+  font-size:var(--micro);letter-spacing:.08em;text-transform:uppercase;color:var(--pale);
+  white-space:nowrap;overflow:hidden}
+.fil #filTexte{overflow:hidden;text-overflow:ellipsis}
 .led{width:7px;height:7px;border-radius:50%;background:var(--pale);flex-shrink:0}
 .fil.vivant .led{background:var(--vert);box-shadow:0 0 0 3px oklch(70% 0.145 152 / .2)}
 .fil.coupe .led{background:var(--rouge)}
@@ -85,6 +88,10 @@ h1 em{font-style:normal;color:var(--ambre)}
 .verdict{margin:16px 0 0;background:var(--miel);border-radius:var(--r-carte);
   padding:20px 22px;display:flex;align-items:center;gap:16px;box-shadow:var(--ombre)}
 .verdict.calme{background:var(--blanc)}
+.verdict.alerte{background:oklch(60% 0.185 28 / .12)}
+.verdict.alerte .nb{color:var(--rouge)}
+.verdict.alerte .txt{color:var(--doux)}
+.verdict.alerte .txt b{color:oklch(45% 0.16 28)}
 .verdict .nb{font-size:var(--geant);font-weight:800;line-height:.9;letter-spacing:-.05em;
   color:oklch(38% 0.13 70)}
 .verdict.calme .nb{color:var(--vert-f)}
@@ -108,48 +115,57 @@ h1 em{font-style:normal;color:var(--ambre)}
 .puce.actif svg.i{color:var(--miel)}
 
 /* ── groupes ── */
-.groupe{margin-top:28px}
-.groupe h2{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--pale);
-  font-weight:700;margin:0 0 10px;padding-left:4px;display:flex;align-items:center;gap:8px}
+.groupe{margin-top:26px}
+.groupe h2{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--pale);
+  font-weight:700;margin:0 0 9px;padding-left:6px;display:flex;align-items:center;gap:9px}
 .groupe h2 b{background:var(--creme-2);color:var(--doux);border-radius:999px;
-  padding:2px 8px;font-size:11px}
+  padding:2px 8px;font-size:11px;font-weight:700}
 .groupe h2.pliable{cursor:pointer}
 .groupe h2 .fleche{margin-left:auto;font-size:15px;font-weight:400;color:var(--pale);
-  width:22px;height:22px;border-radius:50%;background:var(--creme-2);
-  display:flex;align-items:center;justify-content:center}
+  width:24px;height:24px;border-radius:50%;background:var(--blanc);
+  display:flex;align-items:center;justify-content:center;box-shadow:var(--ombre)}
+.bloc{background:var(--blanc);border-radius:18px;overflow:hidden;box-shadow:var(--ombre)}
 
-/* ── carte produit ── */
-.carte{background:var(--blanc);border-radius:var(--r-carte);margin-bottom:10px;
-  box-shadow:var(--ombre);overflow:hidden;transition:box-shadow var(--moyen) var(--sortie)}
-.carte.ouvert{box-shadow:var(--ombre-h)}
-.tete{display:grid;grid-template-columns:56px 1fr auto;align-items:center;gap:14px;
-  padding:14px 18px 14px 14px;cursor:pointer}
-.compte{width:56px;height:56px;border-radius:18px;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;font-weight:800;font-size:21px;letter-spacing:-.04em;
-  line-height:1;background:var(--creme-2);color:var(--doux)}
-.compte span{font-size:8px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
-  margin-top:3px;opacity:.75}
-.perime  .compte{background:oklch(60% 0.185 28 / .13);color:var(--rouge)}
-.urgent  .compte{background:var(--miel);color:oklch(38% 0.13 70)}
-.semaine .compte{background:oklch(70% 0.145 152 / .16);color:var(--vert-f)}
-.nom{font-weight:600;font-size:16px;letter-spacing:-.01em;overflow-wrap:anywhere;min-width:0}
-.meta{display:flex;align-items:center;gap:6px;margin-top:6px}
-.pic{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;
-  color:var(--doux);background:var(--creme);border-radius:999px;padding:3px 8px}
-.pic svg.i{font-size:13px;stroke-width:1.7;color:var(--pale)}
-
-.qte{font-size:11.5px;font-weight:700;color:var(--blanc);background:var(--encre);
-  border-radius:999px;padding:2px 8px;margin-left:8px;vertical-align:1.5px}
-.date-imp{font-family:var(--mono);font-size:12px;color:var(--pale);letter-spacing:.02em}
-
-.cat{font-size:18px;margin-right:9px;vertical-align:-.22em;stroke-width:1.5;opacity:.9}
-.c-poisson,.c-boisson{color:oklch(62% 0.115 236)}
-.c-viande,.c-charcuterie{color:oklch(58% 0.135 22)}
-.c-volaille,.c-oeuf,.c-feculent{color:oklch(64% 0.125 66)}
-.c-fromage,.c-laitage{color:oklch(62% 0.125 92)}
-.c-legume{color:oklch(58% 0.115 152)}
-.c-fruit,.c-dessert{color:oklch(62% 0.135 12)}
-.c-sauce,.c-plat,.c-divers{color:var(--pale)}
+/* ── ligne de produit ── */
+.carte{border-bottom:1px solid var(--ligne)}
+.carte:last-child{border-bottom:none}
+.carte.perime{background:oklch(60% 0.185 28 / .045)}
+.tete{display:grid;grid-template-columns:3px 34px 1fr auto;align-items:center;gap:11px;
+  padding:12px 14px 12px 12px;cursor:pointer}
+.rond{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.rond svg{width:21px;height:21px;fill:currentColor;stroke:none}
+.f-poisson {background:oklch(62% .115 236 / .16);color:oklch(45% .12 236)}
+.f-viande  {background:oklch(58% .135 22 / .15); color:oklch(45% .15 22)}
+.f-fromage {background:oklch(86% .155 88 / .5);  color:oklch(45% .14 78)}
+.f-laitage {background:oklch(80% .05 250 / .3);  color:oklch(46% .07 250)}
+.f-oeuf    {background:oklch(86% .155 88 / .32); color:oklch(48% .13 70)}
+.f-vegetal {background:oklch(70% .145 152 / .18);color:oklch(43% .13 152)}
+.f-feculent{background:oklch(75% .09 70 / .22);  color:oklch(45% .11 62)}
+.f-sauce   {background:oklch(60% .09 300 / .14); color:oklch(45% .1 300)}
+.f-sucre   {background:oklch(65% .14 12 / .15);  color:oklch(46% .15 12)}
+.f-boisson {background:oklch(65% .11 210 / .16); color:oklch(45% .11 210)}
+.f-plat    {background:oklch(60% .05 70 / .14);  color:oklch(45% .05 70)}
+.f-divers  {background:var(--creme);             color:var(--pale)}
+.jauge{width:3px;height:34px;border-radius:2px;background:var(--creme-2)}
+.perime  .jauge{background:var(--rouge)}
+.urgent  .jauge{background:var(--miel)}
+.semaine .jauge{background:var(--vert)}
+.corps{min-width:0}
+.nom{font-weight:600;font-size:15.5px;letter-spacing:-.012em;line-height:1.3;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qte{font-size:11.5px;font-weight:700;color:var(--doux);background:var(--creme);
+  border-radius:999px;padding:2px 7px;margin-left:7px;vertical-align:1.5px}
+.sous{margin-top:3px;font-size:12px;color:var(--pale);line-height:1.35;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sous span{margin-right:6px}
+.sous .sep{opacity:.45}
+.sous .ouvert{color:var(--ambre);font-weight:600}
+.sous .gele{color:var(--gel);font-weight:600}
+.jours{font-family:var(--mono);font-size:13.5px;font-weight:700;letter-spacing:-.01em;
+  text-align:right;white-space:nowrap;color:var(--pale);line-height:1}
+.perime  .jours{color:var(--rouge)}
+.urgent  .jours{color:oklch(52% 0.14 70)}
+.semaine .jours{color:var(--vert-f)}
 
 /* ── panneau d'édition ── */
 .actions{display:grid;grid-template-rows:0fr;transition:grid-template-rows var(--moyen) var(--sortie)}
@@ -271,21 +287,18 @@ textarea:focus{border-color:var(--miel)}
     <g id="ic-balai"><path d="M4 20.5l6-6M10.5 8.5l5 5M9 10l5 5M13.2 5.8l5 5-3 3-5-5z"/></g>
     <g id="ic-fleche"><path d="M5 12h13M12.5 6.2L18.5 12l-6 5.8"/></g>
     <g id="ic-boite"><path d="M3.5 7.5L12 3l8.5 4.5v9L12 21l-8.5-4.5z"/><path d="M3.5 7.5L12 12l8.5-4.5M12 12v9"/></g>
-    <g id="ic-poisson"><path d="M3 12c3-4 7-6 11-6 3.5 0 6 1.6 7 3-1 1.4-3.5 3-7 3-4 0-8-2-11-6z" transform="translate(0,3)"/><path d="M18.5 9.5l2.5-2v9l-2.5-2M8 14h.01"/></g>
-    <g id="ic-viande"><path d="M6.5 17.5a5.5 5.5 0 0 1 0-11h6a5.5 5.5 0 0 1 0 11z"/><circle cx="8" cy="12" r="2"/></g>
-    <g id="ic-volaille"><path d="M15 4.5a5.5 5.5 0 0 1 0 11l-4.5 4.5-2-2 1-1.5-1.5-1.5-1.5 1-2-2 4.5-4.5a5.5 5.5 0 0 1 6-5z"/></g>
-    <g id="ic-charcuterie"><path d="M4.5 15.5c0-5 4-9 9-9 3 0 5.5 1 6 2.5.5 1.5-1 2.5-2.5 3.5s-2 3-3.5 4.5-3.5 2-5.5 1.5-3.5-1.5-3.5-3z"/><path d="M9 12h.01M12.5 10h.01M11 14.5h.01"/></g>
-    <g id="ic-fromage"><path d="M3.5 11.5L14 5.5l6.5 6v6.5h-17z"/><path d="M3.5 11.5h17M8 14.5h.01M13 15.5h.01M17 14h.01"/></g>
-    <g id="ic-laitage"><path d="M7.5 9.5h9l-.8 10.5a1 1 0 0 1-1 .9H9.3a1 1 0 0 1-1-.9z"/><path d="M8.5 5.5h7v4h-7zM10 3.2h4"/></g>
-    <g id="ic-legume"><path d="M12 20.5c-3.5-2-6-5.5-6-9.5 0-2.5 1.5-4.5 3-4.5 1 0 2 .8 3 .8s2-.8 3-.8c1.5 0 3 2 3 4.5 0 4-2.5 7.5-6 9.5z"/><path d="M12 7c0-2 1-3.5 3-4"/></g>
-    <g id="ic-fruit"><circle cx="12" cy="13.5" r="7"/><path d="M12 6.5c0-2 1.5-3.5 3.5-4M12 6.5c-.5-1.5-2-2-3.5-2"/></g>
-    <g id="ic-oeuf"><ellipse cx="12" cy="13.5" rx="6" ry="8"/></g>
-    <g id="ic-feculent"><path d="M4.5 9.5h15M4.5 9.5c0-3 3.4-5 7.5-5s7.5 2 7.5 5M6 9.5l1 9.5h10l1-9.5"/></g>
-    <g id="ic-sauce"><path d="M9 3.5h6v3.5l2 3v10.5H7V10l2-3z"/><path d="M7 13h10"/></g>
-    <g id="ic-dessert"><path d="M5.5 11.5h13l-1.5 9h-10z"/><path d="M6 11.5a6 6 0 0 1 12 0M12 5.5v-2"/></g>
-    <g id="ic-boisson"><path d="M6.5 4.5h11l-4 8v7h-3v-7z"/><path d="M8 8.5h8"/></g>
-    <g id="ic-plat"><ellipse cx="12" cy="15" rx="8.5" ry="3.5"/><path d="M3.5 15c0-4.7 3.8-8.5 8.5-8.5s8.5 3.8 8.5 8.5"/></g>
-    <g id="ic-divers"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l2.5 2.5"/></g>
+    <g id="fa-poisson"><ellipse cx="11" cy="12" rx="9.2" ry="6.2"/><path d="M19.4 12L23.4 6.6v10.8z"/><circle cx="6.6" cy="10.6" r="1.35" fill="#fff"/></g>
+    <g id="fa-viande"><path d="M15.6 2.6a6.4 6.4 0 0 1 4.6 10.9c-1.7 1.7-4 2-5.7 1.4-1 1-1.2 2.2-2 3l-1.5 1.5a2.3 2.3 0 0 1-3.3 0l-.5-.5-2.3 2.3-1.5-1.5 2.3-2.3-.5-.5a2.3 2.3 0 0 1 0-3.3l1.5-1.5c.8-.8 2-1 3-2-.6-1.7-.3-4 1.4-5.7a6.4 6.4 0 0 1 2.5-1.8z"/></g>
+    <g id="fa-fromage"><path d="M2 19.4V12L21.4 5.2v14.2z"/><circle cx="7.6" cy="15.6" r="1.9" fill="#fff"/><circle cx="14.4" cy="14.4" r="1.5" fill="#fff"/><circle cx="18.4" cy="17" r="1.15" fill="#fff"/></g>
+    <g id="fa-laitage"><path d="M6.4 9h11.2l-1.1 12H7.5z"/><path d="M8.2 2.6h7.6v5.2H8.2z"/></g>
+    <g id="fa-oeuf"><ellipse cx="12" cy="13.2" rx="6.6" ry="8.6"/></g>
+    <g id="fa-vegetal"><path d="M12 22c-4.3-2.6-7-6.8-7-11.4 0-2.9 1.7-5 3.6-5 1.1 0 2.2.8 3.4.8s2.3-.8 3.4-.8c1.9 0 3.6 2.1 3.6 5 0 4.6-2.7 8.8-7 11.4z"/><path d="M10.4 8c0-3 1.9-5.1 5-5.7l.6 2.3c-2.1.4-3.3 1.7-3.3 3.4z"/></g>
+    <g id="fa-feculent"><path d="M2.6 10.2h18.8L19.8 22H4.2z"/><path d="M2.6 10.2C2.6 6.3 6.8 3.4 12 3.4s9.4 2.9 9.4 6.8z"/><path d="M8.4 13.4h7.2v1.9H8.4z" fill="#fff"/></g>
+    <g id="fa-sauce"><path d="M9 2h6v4.2l2.6 4V22H6.4V10.2l2.6-4z"/><rect x="6.4" y="12" width="11.2" height="3.6" fill="#fff"/></g>
+    <g id="fa-sucre"><path d="M3.8 11.4h16.4L18.4 22H5.6z"/><path d="M4.4 11.4a7.6 7.6 0 0 1 15.2 0z"/><rect x="11" y="1.8" width="2" height="3.8" rx="1"/></g>
+    <g id="fa-plat"><path d="M2 15c0-5.5 4.5-10 10-10s10 4.5 10 10z"/><rect x="0.8" y="16" width="22.4" height="3.6" rx="1.8"/></g>
+    <g id="fa-boisson"><path d="M4.6 2.6h14.8l-5.4 10.2V19.6h3.6V22H6.4v-2.4H10v-6.8z"/></g>
+    <g id="fa-divers"><circle cx="12" cy="12" r="6.2"/></g>
     <g id="ic-cadenas"><rect x="4.5" y="10.5" width="15" height="10" rx="3"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></g>
   </defs>
 </svg>
@@ -313,7 +326,7 @@ textarea:focus{border-color:var(--miel)}
 
   <div class="fil arrive" id="fil" style="animation-delay:60ms">
     <span class="led"></span><span id="filTexte">Connexion…</span>
-    <button id="sortir">Se déconnecter</button>
+    <button id="sortir">Déconnexion</button>
   </div>
 
   <div class="veille cache" id="veille">
@@ -463,6 +476,26 @@ const CONSERVATION = [
   [['ketchup','marinade','cornichon','pickles','moutarde','olive','sirop d','vinaigre'], 365, M + ' — condiments et tartinades']
 ];
 
+/* Famille visuelle : détermine la pastille affichée à gauche de chaque ligne. */
+const FAMILLES = [
+  ['poisson', ['saumon','truite','cabillaud','colin','merlu','dorade','lieu noir','thon','sardine','maquereau','haddock','poisson','crevette','gambas','moule','huître','huitre','saint-jacques','crabe','langoustine','bulot','surimi','tarama','sushi','anchois','labeyrie','pétoncle','palourde']],
+  ['viande', ['jambon','chorizo','saucisson','salami','coppa','pancetta','mortadelle','pâté','terrine','rillette','lardon','allumette','bacon','poitrine','andouille','boudin','fuet','rosette','serrano','parme','bœuf','boeuf','porc','agneau','veau','steak','haché','rôti','côte de','côtelette','entrecôte','bavette','onglet','poulet','dinde','canard','pintade','volaille','escalope','aiguillette','cuisse','magret','merguez','chipolata','saucisse','knacki','brochette','farce','tartare','viande','nugget','cordon bleu']],
+  ['fromage', ['fromage','comté','comte','emmental','gruyère','beaufort','cantal','tomme','morbier','raclette','gouda','edam','mimolette','cheddar','parmesan','parmigiano','grana','camembert','brie','coulommiers','reblochon','munster','maroilles','époisses','chèvre','chevre','mozzarella','burrata','stracciatella','ricotta','feta','brousse','mascarpone','bleu','roquefort','gorgonzola','fourme','manchego','pecorino','vache qui rit','kiri','babybel','boursin']],
+  ['laitage', ['yaourt','yogourt','skyr','faisselle','petit-suisse','petit suisse','fromage blanc','cottage','crème','creme','lait','beurre','margarine','chantilly','laitage','kéfir']],
+  ['oeuf', ['œuf','oeuf']],
+  ['sucre', ['gâteau','gateau','tarte','éclair','tiramisu','mousse','flan','glace','dessert','chocolat','confiture','gelée','marmelade','miel','sirop','tartiner','nutella','biscuit','cookie','viennoiserie','croissant','madeleine','bonbon','sucre']],
+  ['boisson', ['jus','smoothie','nectar','soda','limonade','bière','vin','eau','boisson','café','cafe','thé','tisane']],
+  ['vegetal', ['salade','mâche','mache','roquette','épinard','brocoli','chou','carotte','courgette','poivron','tomate','concombre','champignon','haricot','poireau','aubergine','céleri','radis','betterave','fenouil','navet','endive','oignon','ail','pomme de terre','légume','crudité','ratatouille','poêlée','avocat','maïs','mais','pomme','poire','banane','orange','citron','fraise','framboise','myrtille','raisin','melon','pastèque','pêche','abricot','kiwi','ananas','mangue','clémentine','cerise','prune','fruit','compote','herbe','basilic','coriandre','persil','ciboulette']],
+  ['feculent', ['pain','brioche','baguette','pâtes','pates','spaghetti','penne','tagliatelle','coquillette','riz','semoule','quinoa','boulgour','polenta','farine','gnocchi','ravioli','tortellini','galette','wrap','tortilla','biscotte','céréales','cereales','flocon','muesli','pâte feuilletée','pâte brisée','pâte à','lentille','pois chiche','légumineuse','tofu','seitan']],
+  ['sauce', ['sauce','pesto','tapenade','houmous','guacamole','tzatziki','moutarde','mayonnaise','ketchup','harissa','curry','sriracha','vinaigrette','coulis','soja','vinaigre','huile','olive','cornichon','câpre','condiment','épice','bouillon']],
+  ['plat', ['lasagne','hachis','gratin','quiche','sandwich','taboulé','piémontaise','plat','soupe','velouté','samoussa','nem','pizza','cassoulet','conserve','boîte de','boite de']]
+];
+function famille(nom){
+  const n = nom.toLowerCase();
+  for(const [cle, mots] of FAMILLES) if(mots.some(m => n.includes(m))) return cle;
+  return 'divers';
+}
+
 /* Renvoie { jours, source } si une source couvre le produit, sinon null. */
 function joursOuvert(nom){
   const n = nom.toLowerCase();
@@ -470,28 +503,7 @@ function joursOuvert(nom){
   return null;
 }
 
-/* Famille visuelle du produit : sert uniquement à l'icône affichée. */
-const CATEGORIES = [
-  ['poisson', ['saumon','truite','cabillaud','colin','merlu','dorade','lieu noir','thon','sardine','maquereau','haddock','poisson','crevette','gambas','moule','huître','saint-jacques','crabe','langoustine','bulot','surimi','tarama','sushi','anchois']],
-  ['charcuterie', ['jambon','chorizo','saucisson','salami','coppa','pancetta','mortadelle','pâté','terrine','rillette','lardon','allumette','bacon','poitrine fumée','andouille','boudin','fuet','rosette','serrano','parme']],
-  ['volaille', ['poulet','dinde','canard','pintade','volaille','escalope','nugget','cordon bleu']],
-  ['viande', ['bœuf','boeuf','porc','agneau','veau','steak','haché','rôti','côte de','côtelette','entrecôte','merguez','chipolata','saucisse','knacki','viande','tartare','brochette','burger']],
-  ['fromage', ['fromage','comté','comte','emmental','gruyère','beaufort','cantal','tomme','morbier','raclette','gouda','edam','mimolette','cheddar','parmesan','parmigiano','grana','camembert','brie','coulommiers','reblochon','munster','maroilles','époisses','chèvre','chevre','mozzarella','burrata','stracciatella','ricotta','feta','brousse','mascarpone','bleu','roquefort','gorgonzola','fourme','vache qui rit','kiri','babybel','saint-nectaire','manchego','pecorino']],
-  ['laitage', ['yaourt','skyr','faisselle','petit-suisse','petit suisse','fromage blanc','crème','creme','lait','beurre','chantilly','cottage','laitage']],
-  ['oeuf', ['œuf','oeuf']],
-  ['boisson', ['jus','smoothie','nectar','soda','limonade','bière','vin','eau','boisson','café','thé','sirop de']],
-  ['legume', ['salade','mâche','roquette','épinard','brocoli','chou','carotte','courgette','poivron','tomate','concombre','champignon','haricot','poireau','aubergine','céleri','radis','betterave','fenouil','navet','endive','oignon','ail','pomme de terre','légume','crudité','ratatouille','poêlée','avocat','maïs','mais']],
-  ['fruit', ['pomme','poire','banane','orange','citron','fraise','framboise','myrtille','raisin','melon','pastèque','pêche','abricot','kiwi','ananas','mangue','clémentine','cerise','prune','fruit','compote']],
-  ['feculent', ['pain','brioche','baguette','pâte','pate','gnocchi','ravioli','tortellini','riz','semoule','quinoa','lentille','pois chiche','galette','wrap','tortilla','pizza','biscotte','céréales','cereales','flocon']],
-  ['sauce', ['sauce','pesto','tapenade','houmous','guacamole','moutarde','mayonnaise','ketchup','harissa','curry','sriracha','vinaigrette','coulis','soja','vinaigre','huile','olive','cornichon','câpre','condiment','épice']],
-  ['dessert', ['gâteau','gateau','tarte','éclair','tiramisu','mousse','flan','glace','dessert','chocolat','confiture','miel','sirop','pâte à tartiner','nutella','biscuit','cookie','crème dessert','viennoiserie','croissant']],
-  ['plat', ['lasagne','hachis','gratin','quiche','sandwich','taboulé','piémontaise','plat','soupe','velouté','bouillon','tofu','seitan','boulettes végétales','samoussa','nem']]
-];
-function categorie(nom){
-  const n = nom.toLowerCase();
-  for(const [cle, mots] of CATEGORIES) if(mots.some(m => n.includes(m))) return cle;
-  return 'divers';
-}
+
 
 const MOIS_AU_CONGELATEUR = 6;
 
@@ -822,12 +834,12 @@ function congeler(it){
 /* ══════ affichage ══════ */
 function majEntete(){
   const d = new Date();
-  $('jour').textContent = String(d.getDate()).padStart(2,'0') + '.' + String(d.getMonth()+1).padStart(2,'0');
+  $('jour').textContent = String(d.getDate());
   $('mois').textContent = MOIS[d.getMonth()];
 }
 const etatJ = j => j < 0 ? 'perime' : j <= 2 ? 'urgent' : j <= 7 ? 'semaine' : '';
-const compteur = j => j < 0 ? '+' + (-j) : String(j);
-const legende  = j => j < 0 ? 'dépassé' : j === 0 ? "aujourd'hui" : j === 1 ? 'jour' : 'jours';
+const compteur = j => j < 0 ? 'J+' + (-j) : j === 0 ? "AUJ." : 'J-' + j;
+const legende  = j => j < 0 ? 'dépassé' : j === 0 ? "à manger" : j === 1 ? 'demain' : 'jours';
 
 $('filtres').onclick = e => {
   const b = e.target.closest('.puce'); if(!b) return;
@@ -851,17 +863,32 @@ function rendre(){
       : `<div class="vide"><svg class="i"><use href="#ic-boite"/></svg>Rien ici pour le moment.</div>`;
     return;
   }
-  const presses = vus.filter(i => restant(i.dlc) <= 2).reduce((n,i) => n + (i.quantite || 1), 0);
-  const total   = vus.reduce((n,i) => n + (i.quantite || 1), 0);
-  resume.className = 'verdict arrive' + (presses ? '' : ' calme');
+  const perimes = vus.filter(i => restant(i.dlc) < 0).length;
+  const urgents = vus.filter(i => { const j = restant(i.dlc); return j >= 0 && j <= 2; }).length;
+  const total   = vus.length;
+
+  let ton = 'calme', chiffre = '0', titre = 'Rien d’urgent', detail = '';
+  if(perimes){
+    ton = 'alerte';
+    chiffre = String(perimes);
+    titre = perimes > 1 ? 'produits dépassés' : 'produit dépassé';
+    detail = urgents ? 'et ' + urgents + ' à manger sous 48 h' : 'à retirer du stock';
+  }else if(urgents){
+    ton = '';
+    chiffre = String(urgents);
+    titre = urgents > 1 ? 'produits à manger sous 48 h' : 'produit à manger sous 48 h';
+    detail = total + ' produit' + (total > 1 ? 's' : '') + ' en stock';
+  }else{
+    detail = total + ' produit' + (total > 1 ? 's' : '') + ' en stock';
+  }
+
+  resume.className = 'verdict arrive' + (ton ? ' ' + ton : '');
   resume.innerHTML = '';
-  const nb = document.createElement('div'); nb.className = 'nb';
-  nb.textContent = presses ? String(presses) : '0';
+  const nb = document.createElement('div'); nb.className = 'nb'; nb.textContent = chiffre;
   const tx = document.createElement('div'); tx.className = 'txt';
-  const fort = document.createElement('b');
-  fort.textContent = presses ? 'à manger sous 48 heures' : 'rien d\u2019urgent';
+  const fort = document.createElement('b'); fort.textContent = titre;
   tx.appendChild(fort);
-  tx.appendChild(document.createTextNode(total + ' article' + (total>1?'s':'') + ' en stock'));
+  if(detail) tx.appendChild(document.createTextNode(detail));
   resume.append(nb, tx);
 
   [['Dépassé', j => j < 0, false],
@@ -891,7 +918,12 @@ function rendre(){
       };
     }
     bloc.appendChild(h);
-    if(!pliable || longuesOuvertes) lot.forEach(it => bloc.appendChild(carte(it)));
+    if(!pliable || longuesOuvertes){
+      const boite = document.createElement('div');
+      boite.className = 'bloc';
+      lot.forEach(it => boite.appendChild(carte(it)));
+      bloc.appendChild(boite);
+    }
     liste.appendChild(bloc);
   });
 }
@@ -902,9 +934,10 @@ function carte(it){
   const el = document.createElement('div');
   el.className = 'carte ' + etatJ(j);
   el.innerHTML = `<div class="tete">
-      <div class="compte">${compteur(j)}<span>${legende(j)}</span></div>
-      <div class="nom"></div>
-      <div class="date-imp">${d}.${m}</div>
+      <span class="jauge"></span>
+      <span class="rond"></span>
+      <div class="corps"><div class="nom"></div></div>
+      <div class="jours">${compteur(j)}</div>
     </div>
     <div class="actions"><div class="dedans"><div class="pile">
       <div class="etiq">Produit</div>
@@ -935,42 +968,36 @@ function carte(it){
       </div>
     </div></div></div>`;
 
+  const fam = famille(it.nom);
+  const rond = el.querySelector('.rond');
+  rond.classList.add('f-' + fam);
+  const gi = document.createElementNS('http://www.w3.org/2000/svg','svg');
+  gi.setAttribute('viewBox','0 0 24 24');
+  const ui = document.createElementNS('http://www.w3.org/2000/svg','use');
+  ui.setAttribute('href','#fa-' + fam);
+  gi.appendChild(ui); rond.appendChild(gi);
+
   const nom = el.querySelector('.nom');
-  const cat = categorie(it.nom);
-  const ico = document.createElementNS('http://www.w3.org/2000/svg','svg');
-  ico.setAttribute('class', 'i cat c-' + cat);
-  const use = document.createElementNS('http://www.w3.org/2000/svg','use');
-  use.setAttribute('href', '#ic-' + cat);
-  ico.appendChild(use);
-  nom.appendChild(ico);
-  nom.appendChild(document.createTextNode(it.nom));                       // textContent : le nom dicté ne peut pas injecter de HTML
+  nom.textContent = it.nom;                       // textContent : aucune injection possible
   if(q > 1){ const b = document.createElement('span'); b.className = 'qte'; b.textContent = '\u00d7' + q; nom.appendChild(b); }
 
-  const meta = document.createElement('div');
-  meta.className = 'meta';
-  const pic = (id, titre, texte) => {
-    const w = document.createElement('span');
-    w.className = 'pic';
-    w.title = titre;
-    const g = document.createElementNS('http://www.w3.org/2000/svg','svg');
-    g.setAttribute('class','i');
-    const u = document.createElementNS('http://www.w3.org/2000/svg','use');
-    u.setAttribute('href', '#' + id);
-    g.appendChild(u);
-    w.appendChild(g);
-    if(texte) w.appendChild(document.createTextNode(texte));
-    return w;
+  const sous = document.createElement('div');
+  sous.className = 'sous';
+  const bout = (texte, classe) => {
+    if(sous.childElementCount){ const sp = document.createElement('span'); sp.className='sep'; sp.textContent='·'; sous.appendChild(sp); }
+    const e = document.createElement('span');
+    if(classe) e.className = classe;
+    e.textContent = texte;
+    sous.appendChild(e);
   };
-  if(it.congele_le){
-    meta.appendChild(pic('ic-gel', 'Congelé le ' + it.congele_le, it.congele_le.slice(8,10) + '.' + it.congele_le.slice(5,7)));
-  }else if(it.lieu){
-    meta.appendChild(pic(it.lieu === 'frigo' ? 'ic-frigo' : it.lieu === 'congélateur' ? 'ic-gel' : 'ic-placard', it.lieu));
-  }
+  bout(d + '.' + m);
+  if(it.lieu) bout(it.lieu.charAt(0).toUpperCase() + it.lieu.slice(1));
   if(it.entame){
     const src = joursOuvert(it.nom);
-    meta.appendChild(pic('ic-goutte', src ? 'Entamé · ' + src.jours + ' jours · ' + src.source : 'Entamé · aucune durée fiable connue'));
+    bout('Entamé', 'ouvert');
   }
-  if(meta.childElementCount) nom.appendChild(meta);
+  if(it.congele_le) bout('Congelé le ' + it.congele_le.slice(8,10) + '.' + it.congele_le.slice(5,7), 'gele');
+  el.querySelector('.corps').appendChild(sous);
 
   const champNom = el.querySelector('input[type=text]');
   champNom.value = it.nom;
@@ -1164,3 +1191,4 @@ demarrer();
 </script>
 </body>
 </html>
+>
