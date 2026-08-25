@@ -1,4 +1,4 @@
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="utf-8">
@@ -11,7 +11,9 @@
 <meta name="apple-mobile-web-app-title" content="Dates">
 <meta name="referrer" content="no-referrer">
 <link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" sizes="180x180" href="icone-180.png">
 <link rel="apple-touch-icon" href="icone.png">
+<link rel="icon" type="image/png" href="icone.png">
 <style>
 :root{
   --creme:   oklch(96.5% 0.032 92);
@@ -131,7 +133,12 @@ h1 em{font-style:normal;color:var(--ambre)}
 .carte:last-child{border-bottom:none}
 .carte.perime{background:oklch(60% 0.185 28 / .045)}
 .tete{display:grid;grid-template-columns:3px 34px 1fr auto;align-items:center;gap:11px;
-  padding:12px 14px 12px 12px;cursor:pointer}
+  padding:12px 12px 12px 12px;cursor:pointer}
+.droite{display:flex;align-items:center;gap:6px}
+.chev{width:15px;height:15px;fill:none;stroke:var(--pale);stroke-width:2.2;
+  stroke-linecap:round;stroke-linejoin:round;
+  transition:transform var(--moyen) var(--sortie)}
+.carte.ouvert .chev{transform:rotate(90deg)}
 .rond{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center}
 .rond svg{width:21px;height:21px;fill:currentColor;stroke:none}
 .f-poisson {background:oklch(62% .115 236 / .16);color:oklch(45% .12 236)}
@@ -189,7 +196,8 @@ h1 em{font-style:normal;color:var(--ambre)}
 .btn:active{transform:scale(.97)}
 .btn.danger{color:var(--rouge)}
 .btn.jaune{color:var(--ambre)}
-.source{margin:2px 2px 0;font-size:11.5px;line-height:1.5;color:var(--pale)}
+.source{margin:2px 2px 0;font-size:11.5px;line-height:1.5;color:var(--doux);font-weight:500}
+.aide{margin:0 2px;font-size:11px;line-height:1.5;color:var(--pale)}
 .source.inconnu{color:var(--ambre)}
 .outils #ranger{flex-basis:100%}
 .btn.gel{color:var(--gel)}
@@ -299,6 +307,7 @@ textarea:focus{border-color:var(--miel)}
     <g id="fa-plat"><path d="M2 15c0-5.5 4.5-10 10-10s10 4.5 10 10z"/><rect x="0.8" y="16" width="22.4" height="3.6" rx="1.8"/></g>
     <g id="fa-boisson"><path d="M4.6 2.6h14.8l-5.4 10.2V19.6h3.6V22H6.4v-2.4H10v-6.8z"/></g>
     <g id="fa-divers"><circle cx="12" cy="12" r="6.2"/></g>
+    <g id="ic-chevron"><path d="M9 5l7 7-7 7"/></g>
     <g id="ic-cadenas"><rect x="4.5" y="10.5" width="15" height="10" rx="3"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></g>
   </defs>
 </svg>
@@ -349,9 +358,9 @@ textarea:focus{border-color:var(--miel)}
   <div id="liste"></div>
 
   <div class="outils">
-    <button class="btn" id="ranger"><svg class="i"><use href="#ic-boite"/></svg>Ranger le stock</button>
-    <button class="btn" id="purger"><svg class="i"><use href="#ic-balai"/></svg>Retirer les dépassés</button>
-    <button class="btn danger" id="vider"><svg class="i"><use href="#ic-poubelle"/></svg>Vider le stock</button>
+    <button class="btn" id="ranger"><svg class="i"><use href="#ic-boite"/></svg>Classer les produits sans emplacement</button>
+    <button class="btn" id="purger"><svg class="i"><use href="#ic-balai"/></svg>Jeter les produits dépassés</button>
+    <button class="btn danger" id="vider"><svg class="i"><use href="#ic-poubelle"/></svg>Tout effacer</button>
   </div>
 </div>
 
@@ -508,7 +517,7 @@ function joursOuvert(nom){
 const MOIS_AU_CONGELATEUR = 6;
 
 let items = [], enAttente = [], attente = [], foyer = null, canal = null;
-let filtre = 'tous', annulation = null, minuteur = null;
+let filtre = 'tous', annulation = null, minuteur = null, ouverteId = null;
 const $ = id => document.getElementById(id);
 
 /* ══════ dates ══════ */
@@ -805,6 +814,12 @@ function jeter(it){
 /* Entamé : un produit ouvert ne tient plus que quelques jours. */
 function entamer(it){
   const avant = { dlc: it.dlc, entame: !!it.entame };
+  if(it.entame){                                  // deuxième appui : on retire la marque
+    modifier(it.id, { entame:false });
+    proposerAnnulation(it.nom + ' n\u2019est plus marqué entamé (la date reste inchangée)',
+      () => modifier(it.id, avant));
+    return;
+  }
   const info = joursOuvert(it.nom);
   if(!info){                                     // aucune source : on ne touche pas à la date
     modifier(it.id, { entame:true });
@@ -826,9 +841,20 @@ function entamer(it){
 /* Congelé : la DLC imprimée ne veut plus rien dire, on repart sur six mois. */
 function congeler(it){
   const avant = { dlc: it.dlc, lieu: it.lieu || '', congele_le: it.congele_le || null };
+  if(it.congele_le){                              // deuxième appui : on annule la congélation
+    modifier(it.id, { congele_le:null });
+    proposerAnnulation(it.nom + ' n\u2019est plus marqué congelé (la date reste inchangée)',
+      () => modifier(it.id, avant));
+    return;
+  }
   const d = jour0(); d.setMonth(d.getMonth() + MOIS_AU_CONGELATEUR);
+  if(restant(iso(d)) > 90 && !longuesOuvertes){    // sinon le produit disparaîtrait dans un groupe replié
+    longuesOuvertes = true;
+    try{ localStorage.setItem(LONGUES, '1'); }catch(e){}
+  }
   modifier(it.id, { dlc: iso(d), lieu: 'congélateur', congele_le: iso(jour0()) });
-  proposerAnnulation(it.nom + ' congelé aujourd\u2019hui', () => modifier(it.id, avant));
+  proposerAnnulation(it.nom + ' congelé — à consommer sous ' + MOIS_AU_CONGELATEUR + ' mois',
+    () => modifier(it.id, avant));
 }
 
 /* ══════ affichage ══════ */
@@ -937,34 +963,38 @@ function carte(it){
       <span class="jauge"></span>
       <span class="rond"></span>
       <div class="corps"><div class="nom"></div></div>
-      <div class="jours">${compteur(j)}</div>
+      <div class="droite">
+        <span class="jours">${compteur(j)}</span>
+        <svg class="chev"><use href="#ic-chevron"/></svg>
+      </div>
     </div>
     <div class="actions"><div class="dedans"><div class="pile">
-      <div class="etiq">Produit</div>
+      <div class="etiq">Corriger le nom, la quantité ou la date</div>
       <div class="rang">
         <input type="text" maxlength="80" aria-label="Nom du produit">
         <input type="number" min="1" max="99" value="${q}" aria-label="Quantité">
       </div>
       <div class="rang"><input type="date" value="${it.dlc}" aria-label="Date de péremption"></div>
 
-      <div class="etiq">Emplacement</div>
+      <div class="etiq">Où est-il rangé ?</div>
       <div class="rang lieux">
         <button class="btn" data-l="frigo"><svg class="i"><use href="#ic-frigo"/></svg>Frigo</button>
         <button class="btn" data-l="congélateur"><svg class="i"><use href="#ic-gel"/></svg>Congélo</button>
         <button class="btn" data-l="placard"><svg class="i"><use href="#ic-placard"/></svg>Placard</button>
       </div>
 
-      <div class="etiq">Ouvert ou congelé</div>
+      <div class="etiq">L’avez-vous ouvert ou congelé ?</div>
       <div class="rang">
         <button class="btn jaune" data-a="ouvert"><svg class="i"><use href="#ic-goutte"/></svg>Entamé</button>
         <button class="btn gel" data-a="gele"><svg class="i"><use href="#ic-gel"/></svg>Congelé</button>
       </div>
       <p class="source"></p>
+      <p class="aide">Marquer un produit entamé rapproche sa date : une fois ouvert, il se garde moins longtemps.</p>
 
-      <div class="etiq">Sortie du stock</div>
+      <div class="etiq">Le faire sortir du stock</div>
       <div class="rang">
-        <button class="btn" data-a="ok"><svg class="i"><use href="#ic-moins"/></svg>Consommé</button>
-        <button class="btn danger" data-a="ko"><svg class="i"><use href="#ic-poubelle"/></svg>Tout retirer</button>
+        <button class="btn" data-a="ok"><svg class="i"><use href="#ic-moins"/></svg>J’en ai mangé un</button>
+        <button class="btn danger" data-a="ko"><svg class="i"><use href="#ic-poubelle"/></svg>Il n’y en a plus</button>
       </div>
     </div></div></div>`;
 
@@ -1001,7 +1031,16 @@ function carte(it){
 
   const champNom = el.querySelector('input[type=text]');
   champNom.value = it.nom;
-  el.querySelector('.tete').onclick = () => el.classList.toggle('ouvert');
+  if(ouverteId === it.id) el.classList.add('ouvert');
+  el.querySelector('.tete').onclick = () => {
+    const ouvre = ouverteId !== it.id;
+    ouverteId = ouvre ? it.id : null;
+    rendre();
+    if(ouvre) requestAnimationFrame(() => {
+      const c = document.querySelector('.carte.ouvert');
+      if(c) c.scrollIntoView({ block:'center', behavior:'smooth' });
+    });
+  };
   champNom.onchange = e => {
     const v = e.target.value.trim().slice(0,80);
     v && v !== it.nom ? modifier(it.id, { nom:v, lieu: devineLieu(v) }) : (e.target.value = it.nom);
@@ -1023,8 +1062,12 @@ function carte(it){
     ligneSrc.textContent = "Aucune durée fiable connue pour ce produit. La date ne sera pas modifiée : reportez-vous à l'étiquette.";
     ligneSrc.classList.add('inconnu');
   }
-  el.querySelector('[data-a="ouvert"]').onclick = () => entamer(it);
-  el.querySelector('[data-a="gele"]').onclick   = () => congeler(it);
+  const bEnt = el.querySelector('[data-a="ouvert"]');
+  const bGel = el.querySelector('[data-a="gele"]');
+  if(it.entame)     bEnt.classList.add('choisi');
+  if(it.congele_le) bGel.classList.add('choisi');
+  bEnt.onclick = () => entamer(it);
+  bGel.onclick = () => congeler(it);
   el.querySelector('[data-a="ok"]').onclick     = () => consommer(it);
   el.querySelector('[data-a="ko"]').onclick     = () => jeter(it);
   return el;
@@ -1191,4 +1234,3 @@ demarrer();
 </script>
 </body>
 </html>
->
