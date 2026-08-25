@@ -735,6 +735,16 @@ function carte(it){
   return el;
 }
 
+/* ══════ nettoyage du stock ══════ */
+$('purger').onclick = () => {
+  const vieux = items.filter(i => restant(i.dlc) < 0);
+  retirerPlusieurs(vieux, vieux.length + ' produit' + (vieux.length > 1 ? 's dépassés retirés' : ' dépassé retiré'));
+};
+$('vider').onclick = () => {
+  if(!items.length){ $('note').textContent = 'Le stock est déjà vide.'; return; }
+  if(confirm('Retirer les ' + items.length + ' produits du stock ?')) retirerPlusieurs([...items], 'Stock vidé');
+};
+
 /* ══════ relecture avant ajout ══════ */
 $('lireBtn').onclick = () => {
   $('saisie').blur();                       // referme le clavier, sinon il masque le panneau
