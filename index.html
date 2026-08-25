@@ -74,6 +74,13 @@ h1 em{font-style:normal;color:var(--ambre)}
 .fil button{margin-left:auto;background:none;border:none;color:var(--pale);font:inherit;
   letter-spacing:inherit;text-transform:inherit;cursor:pointer;padding:4px 0;text-decoration:underline}
 
+.veille{margin-top:16px;background:oklch(60% 0.185 28 / .09);border-radius:var(--r-carte);
+  padding:16px 18px;display:flex;flex-direction:column;gap:12px}
+.veille b{display:block;font-size:14.5px;color:var(--rouge);margin-bottom:3px}
+.veille span{font-size:13px;color:var(--doux);line-height:1.45}
+.veille a{align-self:flex-start;background:var(--rouge);color:var(--blanc);text-decoration:none;
+  font-size:12.5px;font-weight:700;padding:11px 16px;border-radius:12px}
+
 /* ── verdict ── */
 .verdict{margin:16px 0 0;background:var(--miel);border-radius:var(--r-carte);
   padding:20px 22px;display:flex;align-items:center;gap:16px;box-shadow:var(--ombre)}
@@ -276,6 +283,14 @@ textarea:focus{border-color:var(--miel)}
     <button id="sortir">Se déconnecter</button>
   </div>
 
+  <div class="veille cache" id="veille">
+    <div>
+      <b>La base est injoignable.</b>
+      <span>Ton téléphone a du réseau : le projet Supabase est probablement en veille. Tes modifications sont conservées et repartiront toutes seules.</span>
+    </div>
+    <a href="https://supabase.com/dashboard/project/ecrbavcjxbvmlfhypjvx" rel="noopener noreferrer" target="_blank">Relancer le projet</a>
+  </div>
+
   <div class="verdict arrive" id="verdict" style="animation-delay:110ms"></div>
 
   <div class="filtres arrive" id="filtres" style="animation-delay:170ms">
@@ -471,10 +486,20 @@ const ecrireJSON = (c, v) => { try{ localStorage.setItem(c, JSON.stringify(v)); 
 const cacheEcrire  = () => ecrireJSON(CACHE, items);
 const attenteEcrire = () => ecrireJSON(ATTENTE, attente);
 
+let alerte = '';
+function veille(actif){
+  $('veille').classList.toggle('cache', !actif);
+}
+function alerter(texte){
+  alerte = texte;
+  $('note').textContent = texte;
+  $('note').style.color = 'var(--rouge)';
+}
 function fil(etat, texte){ $('fil').className = 'fil ' + etat; $('filTexte').textContent = texte; }
 function majFil(){
   if(!distant){ fil('', 'Mode local — Supabase non configuré'); return; }
   if(attente.length){ fil('attente', attente.length + ' modification' + (attente.length>1?'s':'') + ' en attente'); return; }
+  if(alerte) return;
   navigator.onLine ? fil('vivant','Synchronisé avec le foyer') : fil('coupe','Hors ligne — liste en cache');
 }
 
@@ -497,17 +522,25 @@ async function vider(){
     const op = attente[0];
     let res;
     try{ res = await envoyer(op); }
-    catch(e){ break; }                                  // réseau coupé : on garde l'opération
+    catch(e){ veille(navigator.onLine); break; }        // réseau coupé ou base muette : on garde l'opération
     if(res && res.error){
-      const reseau = !navigator.onLine || /fetch|network|timeout/i.test(res.error.message || '');
-      if(reseau) break;
+      const reseau = !navigator.onLine || /fetch|network|timeout|503|504|540/i.test(res.error.message || '');
+      if(reseau){ veille(navigator.onLine); break; }
       attente.shift(); attenteEcrire();                 // refusée par la base : inutile de réessayer
-      $('note').textContent = 'Une modification a été refusée : ' + res.error.message;
+      if(op.type === 'insert'){                         // le produit n'existe nulle part : ne pas le laisser à l'écran
+        const perdus = op.lignes.map(l => l.id);
+        items = items.filter(i => !perdus.includes(i.id));
+        cacheEcrire(); rendre();
+        alerter(op.lignes.length + ' produit(s) refusé(s) par la base et retiré(s) de la liste. Motif : ' + res.error.message);
+      }else{
+        alerter('Une modification a été refusée : ' + res.error.message);
+      }
       continue;
     }
     attente.shift(); attenteEcrire();
   }
   vidageEnCours = false;
+  if(!attente.length && !alerte){ $('note').style.color = ''; $('note').textContent = "Écrivez d'abord dans le cadre, avec le clavier ou son micro."; }
   majFil();
   if(!attente.length) await recharger();
 }
@@ -516,7 +549,12 @@ async function recharger(){
   if(!distant){ items = lireJSON(CACHE); rendre(); return; }
   if(attente.length){ rendre(); return; }               // ne pas écraser des changements non envoyés
   const { data, error } = await sb.from('produits').select('*').order('dlc', { ascending:true });
-  if(error){ fil('coupe','Hors ligne — liste en cache'); items = lireJSON(CACHE); rendre(); return; }
+  if(error){
+    veille(navigator.onLine);                       // réseau présent mais base muette : projet en veille
+    fil('coupe', navigator.onLine ? 'Base injoignable — liste en cache' : 'Hors ligne — liste en cache');
+    items = lireJSON(CACHE); rendre(); return;
+  }
+  veille(false);
   items = data; cacheEcrire(); majFil(); rendre();
 }
 
@@ -847,6 +885,7 @@ $('sortir').onclick = async () => {
   montrerPorte('');
 };
 
+setInterval(() => { if(foyer && attente.length && navigator.onLine) vider(); }, 45000);
 window.addEventListener('online',  () => { majFil(); if(foyer) vider().then(recharger); });
 window.addEventListener('offline', () => majFil());
 document.addEventListener('visibilitychange', () => { if(!document.hidden && foyer){ vider(); recharger(); } });
